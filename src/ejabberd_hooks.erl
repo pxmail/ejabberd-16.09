@@ -152,6 +152,7 @@ run(Hook, Args) ->
 run(Hook, Host, Args) ->
     case ets:lookup(hooks, {Hook, Host}) of
 	[{_, Ls}] ->
+        ?DEBUG("806 Ls=~p, Hook=~p, Args=~p~n", [Ls, Hook, Args]),
 	    run1(Ls, Hook, Args);
 	[] ->
 	    ok
@@ -202,19 +203,23 @@ init([]) ->
 %%          {stop, Reason, State}            (terminate/2 is called)
 %%----------------------------------------------------------------------
 handle_call({add, Hook, Host, Module, Function, Seq}, _From, State) ->
+    ?DEBUG("801 Hook=~p, Host=~p, Module=~p, Function=~p, Seq=~p~n", [Hook, Host, Module, Function, Seq]),
     HookFormat = {Seq, Module, Function},
     Reply = handle_add(Hook, Host, HookFormat),
     {reply, Reply, State};
 handle_call({add, Hook, Host, Node, Module, Function, Seq}, _From, State) ->
+    ?DEBUG("802 Hook=~p, Host=~p, Node=~p, Module=~p, Function=~p, Seq=~p~n", [Hook, Host, Node, Module, Function, Seq]),
     HookFormat = {Seq, Node, Module, Function},
     Reply = handle_add(Hook, Host, HookFormat),
     {reply, Reply, State};
 
 handle_call({delete, Hook, Host, Module, Function, Seq}, _From, State) ->
+    ?DEBUG("803 Hook=~p, Host=~p, Module=~p, Function=~p, Seq=~p~n", [Hook, Host, Module, Function, Seq]),
     HookFormat = {Seq, Module, Function},
     Reply = handle_delete(Hook, Host, HookFormat),
     {reply, Reply, State};
 handle_call({delete, Hook, Host, Node, Module, Function, Seq}, _From, State) ->
+    ?DEBUG("805 Hook=~p, Host=~p, Node=~p, Module=~p, Function=~p, Seq=~p~n", [Hook, Host, Node, Module, Function, Seq]),
     HookFormat = {Seq, Node, Module, Function},
     Reply = handle_delete(Hook, Host, HookFormat),
     {reply, Reply, State};

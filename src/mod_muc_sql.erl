@@ -17,6 +17,8 @@
 	 can_use_nick/4, get_rooms/2, get_nick/3, set_nick/4,
 	 import/1, import/2, export/1]).
 
+-export([get_account/2]).
+
 -include("jlib.hrl").
 -include("mod_muc.hrl").
 -include("logger.hrl").
@@ -68,6 +70,20 @@ can_use_nick(LServer, Host, JID, Nick) ->
 	{selected, [{SJID1}]} -> SJID == SJID1;
 	_ -> true
     end.
+
+get_account(LServer,UserName) ->
+	case catch ejabberd_sql:sql_query(
+                 LServer,
+                 ?SQL("select @(phonenumber)s, @(email)s from account"
+                      " where username=%(UserName)s")) of
+	{selected, AccountOpts} ->
+	    ?INFO_MSG("222222 AccountOpts=~p~n", [AccountOpts]),
+		[];
+	Err ->
+	    ?ERROR_MSG("failed to get accounts: ~p", [Err]),
+	    []
+    end.
+	
 
 get_rooms(LServer, Host) ->
     case catch ejabberd_sql:sql_query(

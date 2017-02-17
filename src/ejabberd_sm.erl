@@ -251,6 +251,7 @@ unset_presence(SID, User, Server, Resource, Status,
 
 close_session_unset_presence(SID, User, Server,
 			     Resource, Status) ->
+    ?DEBUG("805 SID=~p, User=~p, Server=~p, Resource=~p, Status=~p~n", [SID, User, Server, Resource, Status]),
     close_session(SID, User, Server, Resource),
     ejabberd_hooks:run(unset_presence_hook,
 		       jid:nameprep(Server),
@@ -299,6 +300,7 @@ get_offline_info(Time, User, Server, Resource) ->
 -spec dirty_get_sessions_list() -> [ljid()].
 
 dirty_get_sessions_list() ->
+    ?DEBUG("801 ~p~n", [get_sm_backends()]),
     lists:flatmap(
       fun(Mod) ->
 	      [S#session.usr || S <- online(Mod:get_sessions())]
@@ -374,6 +376,7 @@ handle_call(_Request, _From, State) ->
 handle_cast(_Msg, State) -> {noreply, State}.
 
 handle_info({route, From, To, Packet}, State) ->
+    ?DEBUG("783 From=~p,To=~p,Packet=~p~n", [From, To, Packet]),
     case catch do_route(From, To, Packet) of
 	{'EXIT', Reason} ->
 	    ?ERROR_MSG("~p~nwhen processing: ~p",
@@ -463,6 +466,7 @@ do_route(From, To, #xmlel{} = Packet) ->
     ?DEBUG("session manager~n\tfrom ~p~n\tto ~p~n\tpacket "
 	   "~P~n",
 	   [From, To, Packet, 8]),
+	?DEBUG("781 Packet=~p~n", [Packet]),
     #jid{user = User, server = Server,
 	 luser = LUser, lserver = LServer, lresource = LResource} = To,
     #xmlel{name = Name, attrs = Attrs} = Packet,
@@ -629,6 +633,7 @@ route_message(From, To, Packet, Type) ->
 				  [] ->
 				      ok; % Race condition
 				  Ss ->
+					  ?DEBUG("781 Ss=~p,From=~p,To=~p,Packet=~p~n", [Ss, From, To, Packet]),
 				      Session = lists:max(Ss),
 				      Pid = element(2, Session#session.sid),
 				      ?DEBUG("sending to process ~p~n", [Pid]),

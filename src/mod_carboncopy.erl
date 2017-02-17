@@ -148,6 +148,7 @@ check_and_forward(JID, To, Packet, Direction)->
     end.
 
 remove_connection(User, Server, Resource, _Status)->
+    ?DEBUG("708 : User=~p, Server=~p, Resource=~p, _Status=~p", [User, Server, Resource, _Status]),
     disable(Server, User, Resource),
     ok.
 

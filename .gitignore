@@ -9,6 +9,8 @@
 *.log
 .DS_Store
 /Makefile
+.project
+.settings
 /config.log
 /config.status
 /configure

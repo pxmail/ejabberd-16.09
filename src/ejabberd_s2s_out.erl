@@ -209,6 +209,7 @@ init([From, Server, Type]) ->
 	    server = Server, new = New, verify = Verify, timer = Timer}}.
 
 open_socket(init, StateData) ->
+    ?DEBUG("750 StateDatat=~p~n", [StateData]),
     log_s2s_out(StateData#state.new, StateData#state.myname,
 		StateData#state.server, StateData#state.tls),
     ?DEBUG("open_socket: ~p",
@@ -220,10 +221,15 @@ open_socket(init, StateData) ->
 		 false -> [];
 		 ASCIIAddr -> get_addr_port(ASCIIAddr)
 	       end,
+    ?DEBUG("751 AddrList=~p~n", [AddrList]),
     case lists:foldl(fun ({Addr, Port}, Acc) ->
 			     case Acc of
-			       {ok, Socket} -> {ok, Socket};
-			       _ -> open_socket1(Addr, Port)
+			       {ok, Socket} -> 
+                            ?DEBUG("752 Socket=~p~n", [Socket]),
+                            {ok, Socket};
+			       _ -> 
+                            ?DEBUG("753 Addr=~p, Port=~p~n", [Addr, Port]),
+                            open_socket1(Addr, Port)
 			     end
 		     end,
 		     ?SOCKET_DEFAULT_RESULT, AddrList)
@@ -1094,7 +1100,10 @@ get_addr_port(Server) ->
       {error, Reason} ->
 	  ?DEBUG("srv lookup of '~s' failed: ~p~n",
 		 [Server, Reason]),
-	  [{Server, outgoing_s2s_port()}];
+      A = outgoing_s2s_port(),
+      ?DEBUG("730 Server=~p,outgoing_s2s_port=~p~n", [Server, A]),
+	  %%[{Server, outgoing_s2s_port()}];
+      [{Server, A}];
       {ok, HEnt} ->
 	  ?DEBUG("srv lookup of '~s': ~p~n",
 		 [Server, HEnt#hostent.h_addr_list]),
@@ -1132,6 +1141,7 @@ srv_lookup(Server) ->
                 s2s_dns_retries,
                 fun(I) when is_integer(I), I>=0 -> I end,
                 2),
+    ?DEBUG("731 Server=~p,TimeoutMs=~p,Retries=~p~n", [Server, TimeoutMs, Retries]),
     srv_lookup(binary_to_list(Server), TimeoutMs, Retries).
 
 %% XXX - this behaviour is suboptimal in the case that the domain
@@ -1140,24 +1150,31 @@ srv_lookup(Server) ->
 %% case we'll give up when we get the "_jabber._tcp." nxdomain reply.
 srv_lookup(_Server, _Timeout, Retries)
     when Retries < 1 ->
+    ?DEBUG("732 Retries=~p~n", [Retries]),
     {error, timeout};
 srv_lookup(Server, Timeout, Retries) ->
     case inet_res:getbyname("_xmpp-server._tcp." ++ Server,
 			    srv, Timeout)
 	of
       {error, _Reason} ->
+      ?DEBUG("733 Server=~p,Timeout=~p~n", [Server, Timeout]),
 	  case inet_res:getbyname("_jabber._tcp." ++ Server, srv,
 				  Timeout)
 	      of
 	    {error, timeout} ->
+        ?DEBUG("734 Server=~p,Timeout=~p~n", [Server, Timeout]),
 		?ERROR_MSG("The DNS servers~n  ~p~ntimed out on "
 			   "request for ~p IN SRV. You should check "
 			   "your DNS configuration.",
 			   [inet_db:res_option(nameserver), Server]),
 		srv_lookup(Server, Timeout, Retries - 1);
-	    R -> R
+	    R -> 
+		   ?DEBUG("735 Server=~p,Timeout=~p,R=~p~n", [Server, Timeout, R]),
+           R
 	  end;
-      {ok, _HEnt} = R -> R
+      {ok, _HEnt} = R -> 
+          ?DEBUG("736 R=~p~n", [R]),
+		  R
     end.
 
 test_get_addr_port(Server) ->

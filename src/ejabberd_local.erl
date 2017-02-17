@@ -204,6 +204,7 @@ handle_call(_Request, _From, State) ->
 handle_cast(_Msg, State) -> {noreply, State}.
 
 handle_info({route, From, To, Packet}, State) ->
+    ?DEBUG("782 From=~p,To=~p,Packet=~p~n", [From, To, Packet]),
     case catch do_route(From, To, Packet) of
       {'EXIT', Reason} ->
 	  ?ERROR_MSG("~p~nwhen processing: ~p",
@@ -266,6 +267,7 @@ do_route(From, To, Packet) ->
 	   "~P~n",
 	   [From, To, Packet, 8]),
     if To#jid.luser /= <<"">> ->
+       ?DEBUG("781 From=~p,To=~p,Packet=~p~n", [From, To, Packet]),
 	   ejabberd_sm:route(From, To, Packet);
        To#jid.lresource == <<"">> ->
 	   #xmlel{name = Name} = Packet,

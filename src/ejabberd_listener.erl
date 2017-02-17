@@ -340,6 +340,7 @@ accept(ListenSocket, Module, Opts, Interval) ->
 			  true -> ejabberd_frontend_socket;
 			  false -> ejabberd_socket
 		      end,
+		?DEBUG("101 CallMod=~p~n", [CallMod]),
 	    CallMod:start(strip_frontend(Module), gen_tcp, Socket, Opts),
 	    accept(ListenSocket, Module, Opts, NewInterval);
 	{error, Reason} ->

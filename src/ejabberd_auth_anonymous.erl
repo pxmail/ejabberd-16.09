@@ -160,6 +160,7 @@ unregister_connection(SID,
 		      #jid{luser = LUser, lserver = LServer}, _) ->
     purge_hook(anonymous_user_exist(LUser, LServer), LUser,
 	       LServer),
+	?DEBUG("707 : SID=~p, LUser=~p, LServer=~p~n", [SID, LUser, LServer]),
     remove_connection(SID, LUser, LServer).
 
 %% Launch the hook to purge user data only for anonymous users

@@ -139,10 +139,24 @@ del_last(LServer, LUser) ->
       LServer,
       ?SQL("delete from last where username=%(LUser)s")).
 
-get_password(LServer, LUser) ->
+%%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 start%%%%%%%%%%%%%%%%%%%%%%%
+get_password_old(LServer, LUser) ->
     ejabberd_sql:sql_query(
       LServer,
       ?SQL("select @(password)s from users where username=%(LUser)s")).
+
+get_password(LServer, LUser) ->
+	LServer2 = 
+	  if LServer == <<"ab-insurance.com/apk_1.5.0">> ->
+			 <<"ab-insurance.com">>;
+		 true -> LServer
+	  end,
+	?DEBUG("101 LServer2=~p,LUser=~p~n", [LServer2, LUser]),
+    ejabberd_sql:sql_query(
+      LServer2,
+      ?SQL("select @(plainpassword)s from ofuser where username=%(LUser)s")).
+%%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 get_password_scram(LServer, LUser) ->
     ejabberd_sql:sql_query(
@@ -175,11 +189,23 @@ set_password_scram_t(LServer, LUser,
                   "iterationcount=%(IterationCount)d"])
       end).
 
-add_user(LServer, LUser, Password) ->
+%%%%%%%%%%%%%%%%%%%%%%%ODBC modify start%%%%%%%%%%%%%%%%%%%%%%%
+add_user_old(LServer, LUser, Password) ->
     ejabberd_sql:sql_query(
       LServer,
       ?SQL("insert into users(username, password) "
            "values (%(LUser)s, %(Password)s)")).
+
+add_user(LServer, LUser, Password) ->
+	{M, S, Ms} = os:timestamp(),
+    TS = M * 1000000000 + S * 1000 + Ms,
+	TS2 = list_to_binary("00" ++ integer_to_list(M2)),
+    ejabberd_sql:sql_query(
+      LServer,
+      ?SQL("insert into ofuser(username, plainpassword, creationdate, modificationdate) "
+           "values (%(LUser)s, %(Password)s, %(TS2)s, %(TS2)s)")).
+
+%%%%%%%%%%%%%%%%%%%%%%%ODBC modify end%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 add_user_scram(LServer, LUser,
                StoredKey, ServerKey, Salt, IterationCount) ->
@@ -296,18 +322,31 @@ del_spool_msg(LServer, LUser) ->
       LServer,
       ?SQL("delete from spool where username=%(LUser)s")).
 
-get_roster(LServer, LUser) ->
+%%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 start%%%%%%%%%%%%%%%%%%%%%%%
+get_roster_old(LServer, LUser) ->
     ejabberd_sql:sql_query(
       LServer,
       ?SQL("select @(username)s, @(jid)s, @(nick)s, @(subscription)s, "
            "@(ask)s, @(askmessage)s, @(server)s, @(subscribe)s, "
            "@(type)s from rosterusers where username=%(LUser)s")).
 
-get_roster_jid_groups(LServer, LUser) ->
+get_roster(LServer, LUser) ->
+    ejabberd_sql:sql_query(
+      LServer,
+      ?SQL("select @(username)s, @(jid)s, @(sub)s, @(ask)s, @(recv)s, @(nick)s "
+           "from ofroster where username=%(LUser)s")).
+%%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 end%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%modify by pangxin start %%%%%%%%%%%%%%%%%%
+get_roster_jid_groups_old(LServer, LUser) ->
     ejabberd_sql:sql_query(
       LServer,
       ?SQL("select @(jid)s, @(grp)s from rostergroups where "
            "username=%(LUser)s")).
+
+get_roster_jid_groups(LServer, LUser) ->
+    [].
+%%%%%%%%%%%%%%%%%%%modify by pangxin end %%%%%%%%%%%%%%%%%%%%
 
 get_roster_groups(_LServer, LUser, SJID) ->
     ejabberd_sql:sql_query_t(
@@ -324,12 +363,19 @@ del_user_roster_t(LServer, LUser) ->
                 ?SQL("delete from rostergroups where username=%(LUser)s"))
       end).
 
-get_roster_by_jid(_LServer, LUser, SJID) ->
+%%%%%%%%%%%%%%%%%%%%%%%ODBC modify start%%%%%%%%%%%%%%%%%%%%%%%
+get_roster_by_jid_old(_LServer, LUser, SJID) ->
     ejabberd_sql:sql_query_t(
       ?SQL("select @(username)s, @(jid)s, @(nick)s, @(subscription)s,"
            " @(ask)s, @(askmessage)s, @(server)s, @(subscribe)s,"
            " @(type)s from rosterusers"
            " where username=%(LUser)s and jid=%(SJID)s")).
+
+get_roster_by_jid(_LServer, LUser, SJID) ->
+    ejabberd_sql:sql_query_t(
+      ?SQL("select @(username)s, @(jid)s, @(sub)s, @(ask)s, @(recv)s, @(nick)s "
+           "from ofroster where username=%(LUser)s and jid=%(SJID)s")).
+%%%%%%%%%%%%%%%%%%%%%%%ODBC modify end %%%%%%%%%%%%%%%%%%%%%%%%
 
 get_rostergroup_by_jid(LServer, LUser, SJID) ->
     ejabberd_sql:sql_query(
@@ -390,7 +436,8 @@ update_roster_sql({LUser, SJID, Name, SSubscription, SAsk, AskMessage},
             "values (%(LUser)s, %(SJID)s, %(ItemGroup)s)")
        || ItemGroup <- ItemGroups].
 
-roster_subscribe({LUser, SJID, Name, SSubscription, SAsk, AskMessage}) ->
+%%%%%%%%%%%%%%%%%%%%%%%ODBC modify start%%%%%%%%%%%%%%%%%%%%%%%
+roster_subscribe_old({LUser, SJID, Name, SSubscription, SAsk, AskMessage}) ->
     ?SQL_UPSERT_T(
        "rosterusers",
        ["!username=%(LUser)s",
@@ -402,6 +449,16 @@ roster_subscribe({LUser, SJID, Name, SSubscription, SAsk, AskMessage}) ->
         "server='N'",
         "subscribe=''",
         "type='item'"]).
+
+roster_subscribe({LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
+    ?SQL_UPSERT_T(
+       "ofroster",
+       ["!username=%(LUser)s",
+        "!jid=%(SJID)s",
+        "nick=%(Nick)s",
+        "sub=%(SSub)s",
+        "ask=%(SAsk)s"]).
+%%%%%%%%%%%%%%%%%%%%%%%ODBC modify end %%%%%%%%%%%%%%%%%%%%%%%%
 
 get_subscription(LServer, LUser, SJID) ->
     ejabberd_sql:sql_query(

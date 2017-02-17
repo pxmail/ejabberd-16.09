@@ -23,7 +23,9 @@
 -include("jlib.hrl").
 -include("mod_roster.hrl").
 -include("ejabberd_sql_pt.hrl").
-
+%%%%%%%%%%%%%%%modify by pangxin start%%%%%%%%%%
+-include("logger.hrl").
+%%%%%%%%%%%%%%%modify by pangxin end %%%%%%%%%%%
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -48,8 +50,10 @@ write_roster_version(LUser, LServer, InTransaction, Ver) ->
     end.
 
 get_roster(LUser, LServer) ->
+    ?DEBUG("705 LUser=~p, LServer=~p~n", [LUser, LServer]),
     case catch sql_queries:get_roster(LServer, LUser) of
         {selected, Items} when is_list(Items) ->
+            ?DEBUG("706 Items=~p~n", [Items]),
             JIDGroups = case catch sql_queries:get_roster_jid_groups(
                                      LServer, LUser) of
                             {selected, JGrps} when is_list(JGrps) ->
@@ -211,13 +215,14 @@ import(_, _) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-raw_to_record(LServer,
+%%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 start%%%%%%%%%%%%%%%%%%%%%%%
+raw_to_record_old(LServer,
 	      [User, SJID, Nick, SSubscription, SAsk, SAskMessage,
 	       _SServer, _SSubscribe, _SType]) ->
-    raw_to_record(LServer,
+    raw_to_record_old(LServer,
                   {User, SJID, Nick, SSubscription, SAsk, SAskMessage,
                    _SServer, _SSubscribe, _SType});
-raw_to_record(LServer,
+raw_to_record_old(LServer,
 	      {User, SJID, Nick, SSubscription, SAsk, SAskMessage,
 	       _SServer, _SSubscribe, _SType}) ->
     case jid:from_string(SJID) of
@@ -243,6 +248,36 @@ raw_to_record(LServer,
 		  subscription = Subscription, ask = Ask,
 		  askmessage = SAskMessage}
     end.
+
+%% username)s, @(jid)s, @(sub)s, @(ask)s, @(recv)s, @(nick)s
+raw_to_record(LServer,
+	      [User, SJID, SSub, SAsk, SRecv, Nick]) ->
+    raw_to_record(LServer,
+                  {User, SJID, SSub, SAsk, SRecv, Nick});
+raw_to_record(LServer,
+	      {User, SJID, SSub, SAsk, _SRecv, Nick}) ->
+    case jid:from_string(SJID) of
+      error -> error;
+      JID ->
+	  LJID = jid:tolower(JID),
+      ?DEBUG("801 SSub=~p,SAsk=~p~n", [SSub, SAsk]),
+%%       801 SSub=<<"3">>,SAsk=<<"-1">>
+	  Sub = case SSub of
+			   <<"3">> -> both;
+			   <<"1">> -> to;
+			   <<"2">> -> from;
+			   <<"0">> -> none
+			 end,
+	  Ask = case SAsk of
+		  <<"0">>  -> subscribe;
+		  <<"1">>  -> unsubscribe;
+		  <<"-1">> -> none
+		end,
+	  #roster{usj = {User, LServer, LJID},
+		  us = {User, LServer}, jid = LJID, name = Nick,
+		  subscription = Sub, ask = Ask}
+    end.
+%%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 start%%%%%%%%%%%%%%%%%%%%%%%
 
 record_to_row(
   #roster{us = {LUser, _LServer},

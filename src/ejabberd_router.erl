@@ -288,6 +288,7 @@ handle_cast(_Msg, State) -> {noreply, State}.
 %% Description: Handling all non call/cast messages
 %%--------------------------------------------------------------------
 handle_info({route, From, To, Packet}, State) ->
+    ?DEBUG("822 From=~p,To=~p,Packet=~p~n", [From, To, Packet]),
     case catch do_route(From, To, Packet) of
       {'EXIT', Reason} ->
 	  ?ERROR_MSG("~p~nwhen processing: ~p",
@@ -351,14 +352,33 @@ do_route(OrigFrom, OrigTo, OrigPacket) ->
     ?DEBUG("route~n\tfrom ~p~n\tto ~p~n\tpacket "
 	   "~p~n",
 	   [OrigFrom, OrigTo, OrigPacket]),
+%%%%%%%%%%%%%%%%%modify by pangxin start %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%	#jid{server = ServerTo, lserver = LServerTo} = OrigTo0,
+%%	OrigTo = 
+%%		if ServerTo == <<"ab-insurance.com">> -> OrigTo0#jid{server = <<"bbim.com">>, lserver = <"bbim.com">>};
+%%			true -> OrigTo0
+%%		end,
+%%   #xmlel{attrs = Attrs0} = OrigPacket0,
+%%	?DEBUG("762 Attrs0=~p,OrigTo=~p~n", [Attrs0, OrigTo]),
+%%	OrigPacket = 
+%%		case lists:keyfind(<<"to">>, 1, Attrs0) of
+%%			{<<"to">>,<<"121048@ab-insurance.com">>} ->
+%%					Attrs = lists:keyreplace(<<"to">>, 1, Attrs0, {<<"to">>,<<"121048@bbim.com">>}),
+%%					?DEBUG("763 Attrs=~p~n", [Attrs]),
+%%					OrigPacket0#xmlel{attrs = Attrs};
+%%			_ -> OrigPacket0
+%%		end,
+%%%%%%%%%%%%%%%%%modify by pangxin end %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     case ejabberd_hooks:run_fold(filter_packet,
 				 {OrigFrom, OrigTo, OrigPacket}, [])
 	of
       {From, To, Packet} ->
+	  ?DEBUG("773 From=~p, To=~p, Packet=~p~n", [From, To, Packet]),
 	  LDstDomain = To#jid.lserver,
 	  case mnesia:dirty_read(route, LDstDomain) of
 	    [] -> ejabberd_s2s:route(From, To, Packet);
 	    [R] ->
+        ?DEBUG("775 R=~p~n", [R]),
 		Pid = R#route.pid,
 		if node(Pid) == node() ->
 		       case R#route.local_hint of

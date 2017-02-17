@@ -192,6 +192,7 @@ try_register(User, Server, Password) ->
 	    true ->
 		Res = lists:foldl(fun (_M, {atomic, ok} = Res) -> Res;
 				      (M, _) ->
+						   ?DEBUG("102 =~p~n", [{M, Server, User, Password}]),
 					  M:try_register(User, Server, Password)
 				  end,
 				  {error, not_allowed}, auth_modules(Server)),

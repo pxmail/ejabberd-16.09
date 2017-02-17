@@ -185,6 +185,7 @@ init([{SockMod, Socket}, Opts]) ->
 
 wait_for_stream({xmlstreamstart, _Name, Attrs},
 		StateData) ->
+	?DEBUG("111 Attrs=~p,StateData=~p~n", [Attrs, StateData]),
     case fxml:get_attr_s(<<"xmlns">>, Attrs) of
       <<"jabber:component:accept">> ->
 	  To = fxml:get_attr_s(<<"to">>, Attrs),
@@ -220,6 +221,7 @@ wait_for_stream({xmlstreamstart, _Name, Attrs},
 	  {stop, normal, StateData}
     end;
 wait_for_stream({xmlstreamerror, _}, StateData) ->
+	?DEBUG("112 StateData=~p~n", [StateData]),
     Header = io_lib:format(?STREAM_HEADER,
 			   [<<"none">>, ?MYNAME]),
     send_text(StateData,
@@ -227,10 +229,12 @@ wait_for_stream({xmlstreamerror, _}, StateData) ->
 		(?STREAM_TRAILER)/binary>>),
     {stop, normal, StateData};
 wait_for_stream(closed, StateData) ->
+    ?DEBUG("113 StateData=~p~n", [StateData]),
     {stop, normal, StateData}.
 
 wait_for_handshake({xmlstreamelement, El}, StateData) ->
     #xmlel{name = Name, children = Els} = El,
+    ?DEBUG("115 StateData=~p~n", [StateData]),
     case {Name, fxml:get_cdata(Els)} of
       {<<"handshake">>, Digest} ->
 	  case dict:find(StateData#state.host, StateData#state.host_opts) of

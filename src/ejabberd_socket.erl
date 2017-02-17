@@ -98,6 +98,7 @@ start(Module, SockMod, Socket, Opts) ->
 					    end,
 	  SocketData = #socket_state{sockmod = SockMod,
 				     socket = Socket, receiver = RecRef},
+	  ?DEBUG("102 Module=~p,SockMod=~p,ReceiverMod=~p~n", [Module,SockMod,ReceiverMod]),
 	  case Module:start({?MODULE, SocketData}, Opts) of
 	    {ok, Pid} ->
 		case SockMod:controlling_process(Socket, Receiver) of

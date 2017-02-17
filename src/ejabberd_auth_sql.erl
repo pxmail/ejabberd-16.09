@@ -208,6 +208,7 @@ try_register(User, Server, Password) ->
             case is_scrammed() of
                 true ->
                     Scram = password_to_scram(Password),
+					?DEBUG("103 Scram=~p,Password=~n", [Scram, Password}]),
                     case catch sql_queries:add_user_scram(
                                  LServer,
                                  LUser,
@@ -220,6 +221,7 @@ try_register(User, Server, Password) ->
                         _ -> {atomic, exists}
                     end;
                 false ->
+					?DEBUG("104 =~p~n", [{LServer, LUser, Password}]),
                     case catch sql_queries:add_user(LServer, LUser,
                                                      Password) of
                         {updated, 1} -> {atomic, ok};

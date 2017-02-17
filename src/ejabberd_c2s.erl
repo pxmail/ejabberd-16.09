@@ -374,6 +374,7 @@ init([{SockMod, Socket}, Opts]) ->
 		       mgmt_max_timeout = MaxResumeTimeout,
 		       mgmt_ack_timeout = AckTimeout,
 		       mgmt_resend = ResendOnTimeout},
+	?DEBUG("103 StateData=~p~n", [StateData]),
     {ok, wait_for_stream, StateData, ?C2S_OPEN_TIMEOUT}.
 
 %% Return list of all available resources of contacts,
@@ -382,13 +383,21 @@ get_subscribed(FsmRef) ->
 					 get_subscribed, 1000).
 
 wait_for_stream({xmlstreamstart, _Name, Attrs}, StateData) ->
+	?DEBUG("104 Attrs=~p~n", [Attrs]),
     DefaultLang = ?MYLANG,
     case fxml:get_attr_s(<<"xmlns:stream">>, Attrs) of
 	?NS_STREAM ->
+        ?DEBUG("701 StateData#state.server=~p~n", [StateData#state.server]),
 	    Server =
 		case StateData#state.server of
 		<<"">> ->
-		    jid:nameprep(fxml:get_attr_s(<<"to">>, Attrs));
+%%%%%%%%%%%%%%%%modify by pangxin start %%%%%%%%%%%%%%%%
+		    %%jid:nameprep(fxml:get_attr_s(<<"to">>, Attrs));
+            A = jid:nameprep(fxml:get_attr_s(<<"to">>, Attrs)),
+			?DEBUG("702 A=~p~n", [A]),
+			A2 = if A == <<"ab-insurance.com/apk_1.5.0">> -> <<"ab-insurance.com">>; true -> A end,
+			A2;
+%%%%%%%%%%%%%%%%modify by pangxin end %%%%%%%%%%%%%%%%%%
 		S -> S
 	    end,
 	    Lang = case fxml:get_attr_s(<<"xml:lang">>, Attrs) of
@@ -411,7 +420,9 @@ wait_for_stream({xmlstreamstart, _Name, Attrs}, StateData) ->
 				  <<"">>
 			  end,
 	    IsBlacklistedIP = is_ip_blacklisted(StateData#state.ip, Lang),
-	    case lists:member(Server, ?MYHOSTS) of
+		?DEBUG("115 Server=~p,MYHOSTS=~p,IsBlacklistedIP=~p,StreamVersion=~p~n", [Server,?MYHOSTS,IsBlacklistedIP,StreamVersion]),
+	    %%case lists:member(Server, ?MYHOSTS) of
+        case lists:member(Server, ?MYHOSTS ++ [<<"ab-insurance.com/apk_1.5.0">>]) of
 		true when IsBlacklistedIP == false ->
 		    change_shaper(StateData, jid:make(<<"">>, Server, <<"">>)),
 		    case StreamVersion of
@@ -594,20 +605,26 @@ wait_for_stream({xmlstreamstart, _Name, Attrs}, StateData) ->
 	    {stop, normal, StateData}
     end;
 wait_for_stream(timeout, StateData) ->
+	?DEBUG("105 StateData=~p~n", [StateData]),
     {stop, normal, StateData};
 wait_for_stream({xmlstreamelement, _}, StateData) ->
+	?DEBUG("106 StateData=~p~n", [StateData]),
     send_element(StateData, ?INVALID_XML_ERR),
     {stop, normal, StateData};
 wait_for_stream({xmlstreamend, _}, StateData) ->
+	?DEBUG("107 StateData=~p~n", [StateData]),
     send_element(StateData, ?INVALID_XML_ERR),
     {stop, normal, StateData};
 wait_for_stream({xmlstreamerror, _}, StateData) ->
+	?DEBUG("108 StateData=~p~n", [StateData]),
     send_header(StateData, ?MYNAME, <<"1.0">>, <<"">>),
     send_element(StateData, ?INVALID_XML_ERR),
     {stop, normal, StateData};
 wait_for_stream(closed, StateData) ->
+	?DEBUG("109 StateData=~p~n", [StateData]),
     {stop, normal, StateData};
 wait_for_stream(stop, StateData) ->
+	?DEBUG("110 StateData=~p~n", [StateData]),
     {stop, normal, StateData}.
 
 wait_for_auth({xmlstreamelement, #xmlel{name = Name} = El}, StateData)
@@ -757,6 +774,7 @@ wait_for_auth({xmlstreamelement, El}, StateData) ->
 		    end
 	    end;
 	_ ->
+        ?DEBUG("201 StateData=~p,El=~p~n", [StateData,El]),
 	    process_unauthenticated_stanza(StateData, El),
 	    fsm_next_state(wait_for_auth, StateData)
     end;
@@ -786,15 +804,18 @@ wait_for_feature_request({xmlstreamelement, El},
     TLSRequired = StateData#state.tls_required,
     SockMod =
 	(StateData#state.sockmod):get_sockmod(StateData#state.socket),
+	?DEBUG("301 xmlns=~p,TLSEnabled=~p,TLSRequired=~p,Attrs=~p,Name=~p,El=~p~n", [fxml:get_attr_s(<<"xmlns">>, Attrs),TLSEnabled,TLSRequired,Attrs,Name,El]),
     case {fxml:get_attr_s(<<"xmlns">>, Attrs), Name} of
       {?NS_SASL, <<"auth">>}
 	  when TLSEnabled or not TLSRequired ->
 	  Mech = fxml:get_attr_s(<<"mechanism">>, Attrs),
 	  ClientIn = jlib:decode_base64(fxml:get_cdata(Els)),
+      ?DEBUG("305 ClientIn=~p~n", [ClientIn]),
 	  case cyrsasl:server_start(StateData#state.sasl_state,
 				    Mech, ClientIn)
 	      of
 	    {ok, Props} ->
+        ?DEBUG("306 Server=~p~n", [StateData#state.server]),
 		(StateData#state.sockmod):reset_stream(StateData#state.socket),
 		U = identity(Props),
 		AuthModule = proplists:get_value(auth_module, Props, undefined),
@@ -802,6 +823,7 @@ wait_for_feature_request({xmlstreamelement, El},
 			  "by ~p from ~s",
 			  [StateData#state.socket, U, AuthModule,
 			   ejabberd_config:may_hide_data(jlib:ip_to_list(StateData#state.ip))]),
+        
 		ejabberd_hooks:run(c2s_auth_result, StateData#state.server,
 				   [true, U, StateData#state.server,
 				    StateData#state.ip]),
@@ -816,6 +838,7 @@ wait_for_feature_request({xmlstreamelement, El},
                                                 sasl_state = undefined,
 						user = U});
 	    {continue, ServerOut, NewSASLState} ->
+        ?DEBUG("307 111~n", []),
 		send_element(StateData,
 			     #xmlel{name = <<"challenge">>,
 				    attrs = [{<<"xmlns">>, ?NS_SASL}],
@@ -825,6 +848,7 @@ wait_for_feature_request({xmlstreamelement, El},
 		fsm_next_state(wait_for_sasl_response,
 			       StateData#state{sasl_state = NewSASLState});
 	    {error, Error, Username} ->
+        ?DEBUG("308 222~n", []),
 		?INFO_MSG("(~w) Failed authentication for ~s@~s from ~s",
 			[StateData#state.socket,
 			    Username, StateData#state.server,
@@ -840,6 +864,7 @@ wait_for_feature_request({xmlstreamelement, El},
 						children = []}]}),
 		fsm_next_state(wait_for_feature_request, StateData);
 	    {error, Error} ->
+        ?DEBUG("309 333n", []),
 		send_element(StateData,
 			     #xmlel{name = <<"failure">>,
 				    attrs = [{<<"xmlns">>, ?NS_SASL}],
@@ -883,6 +908,7 @@ wait_for_feature_request({xmlstreamelement, El},
 						    <<"Use of STARTTLS required">>)),
 		 {stop, normal, StateData};
 	     true ->
+		 ?DEBUG("202 StateData=~p,El=~p~n", [StateData,El]),
 		 process_unauthenticated_stanza(StateData, El),
 		 fsm_next_state(wait_for_feature_request, StateData)
 	  end
@@ -907,8 +933,10 @@ wait_for_sasl_response({xmlstreamelement, #xmlel{name = Name} = El}, StateData)
 wait_for_sasl_response({xmlstreamelement, El},
 		       StateData) ->
     #xmlel{name = Name, attrs = Attrs, children = Els} = El,
+	?DEBUG("501 xmlns=~p,Attrs=~p,Name=~p,El=~p~n", [fxml:get_attr_s(<<"xmlns">>, Attrs),Attrs,Name,El]),
     case {fxml:get_attr_s(<<"xmlns">>, Attrs), Name} of
       {?NS_SASL, <<"response">>} ->
+	  ?DEBUG("502 ~n", []),
 	  ClientIn = jlib:decode_base64(fxml:get_cdata(Els)),
 	  case cyrsasl:server_step(StateData#state.sasl_state,
 				   ClientIn)
@@ -992,6 +1020,7 @@ wait_for_sasl_response({xmlstreamelement, El},
 		fsm_next_state(wait_for_feature_request, StateData)
 	  end;
       _ ->
+	  ?DEBUG("203 StateData=~p,El=~p~n", [StateData,El]),
 	  process_unauthenticated_stanza(StateData, El),
 	  fsm_next_state(wait_for_feature_request, StateData)
     end;
@@ -1445,6 +1474,7 @@ handle_info({route, _From, _To, {broadcast, Data}},
 handle_info({route, From, To,
              #xmlel{name = Name, attrs = Attrs, children = Els} = Packet},
             StateName, StateData) ->
+    ?DEBUG("783 From=~p,To=~p,Packet=~p~n", [From, To, Packet]),
     {Pass, NewAttrs, NewState} = case Name of
 				   <<"presence">> ->
 				       State =
@@ -1698,6 +1728,7 @@ handle_info({route, From, To,
 				       end;
 				   _ -> {true, Attrs, StateData}
 				 end,
+    ?DEBUG("785 Pass=~p, NewAttrs=~p, NewState=~p~n", [Pass, NewAttrs, NewState]),
     if Pass ->
 	    Attrs2 =
 		jlib:replace_from_to_attrs(jid:to_string(From),
@@ -1708,7 +1739,9 @@ handle_info({route, From, To,
 		    NewState#state.server,
 		    FixedPacket0,
 		    [NewState, NewState#state.jid, From, To]),
+        ?DEBUG("786 NewState=~p, FixedPacket=~p~n", [NewState, FixedPacket]),
 	    SentStateData = send_packet(NewState, FixedPacket),
+        ?DEBUG("787 SentStateData=~p~n", [SentStateData]),
 	    ejabberd_hooks:run(c2s_loop_debug, [{route, From, To, Packet}]),
 	    fsm_next_state(StateName, SentStateData);
 	true ->
@@ -1912,6 +1945,7 @@ send_text(StateData, Text) when StateData#state.xml_socket ->
     (StateData#state.sockmod):send_xml(StateData#state.socket,
 				       {xmlstreamraw, Text});
 send_text(StateData, Text) when StateData#state.mgmt_state == active ->
+    ?DEBUG("797 StateData#state.sockmod=~p, StateData#state.socket=~p, Text=~p~n", [StateData#state.sockmod, StateData#state.socket, Text]),
     ?DEBUG("Send XML on stream = ~p", [Text]),
     case catch (StateData#state.sockmod):send(StateData#state.socket, Text) of
       {'EXIT', _} ->
@@ -1921,6 +1955,7 @@ send_text(StateData, Text) when StateData#state.mgmt_state == active ->
 	  ok
     end;
 send_text(StateData, Text) ->
+	?DEBUG("StateData = ~p", [StateData]),
     ?DEBUG("Send XML on stream = ~p", [Text]),
     (StateData#state.sockmod):send(StateData#state.socket, Text).
 
@@ -1931,7 +1966,8 @@ send_element(StateData, El) when StateData#state.xml_socket ->
     (StateData#state.sockmod):send_xml(StateData#state.socket,
 				       {xmlstreamelement, El});
 send_element(StateData, El) ->
-    send_text(StateData, fxml:element_to_binary(El)).
+    ?DEBUG("796 StateData=~p, El=~p~n", [StateData, El]),
+	send_text(StateData, fxml:element_to_binary(El)).
 
 send_stanza(StateData, Stanza) when StateData#state.csi_state == inactive ->
     ?DEBUG("791 StateData=~p,Stanza=~p~n", [StateData, Stanza]),
@@ -1939,22 +1975,27 @@ send_stanza(StateData, Stanza) when StateData#state.csi_state == inactive ->
 send_stanza(StateData, Stanza) when StateData#state.mgmt_state == pending ->
     ?DEBUG("792 StateData=~p,Stanza=~p~n", [StateData, Stanza]),
     mgmt_queue_add(StateData, Stanza);
+
+%%%%%%%%%%%%%%%%%%%%%%%ODBC modify start %%%%%%%%%%%%%%%%%%%%%%%%
 send_stanza(StateData, Stanza) when StateData#state.mgmt_state == active ->
     ?DEBUG("793 StateData=~p,Stanza=~p~n", [StateData, Stanza]),
     NewStateData = mgmt_queue_add(StateData, Stanza),
     mgmt_send_stanza(NewStateData, Stanza);
+%%%%%%%%%%%%%%%%%%%%%%%ODBC modify end %%%%%%%%%%%%%%%%%%%%%%%%%%
 send_stanza(StateData, Stanza) ->
     ?DEBUG("795 StateData=~p,Stanza=~p~n", [StateData, Stanza]),
+    #xmlel{name = Name, attrs = Attrs, children = Children} = Stanza,
+	?DEBUG("799 Name=~p,Attrs=~p,Children=~p~n", [Name, Attrs, Children]),
     send_element(StateData, Stanza),
     StateData.
 
 send_packet(StateData, Packet) ->
     case is_stanza(Packet) of
       true ->
-          ?DEBUG("788 StateData=~p,Packet=~p~n", [StateData, Packet]),
+      ?DEBUG("788 StateData=~p,Packet=~p~n", [StateData, Packet]),
 	  send_stanza(StateData, Packet);
       false ->
-          ?DEBUG("789 StateData=~p,Packet=~p~n", [StateData, Packet]),
+      ?DEBUG("789 StateData=~p,Packet=~p~n", [StateData, Packet]),
 	  send_element(StateData, Packet),
 	  StateData
     end.
@@ -2376,6 +2417,7 @@ get_priority_from_presence(PresencePacket) ->
 process_privacy_iq(From, To,
 		   #iq{type = Type, lang = Lang, sub_el = SubEl} = IQ, StateData) ->
     Txt = <<"No module is handling this query">>,
+    ?DEBUG("821 Type=~p,Lang=~p,SubEl=~p~n", [Type,Lang,SubEl]),
     {Res, NewStateData} =
 	case Type of
 	    get ->

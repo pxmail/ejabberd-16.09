@@ -84,8 +84,10 @@ mech_step(#state{step = 3, nonce = Nonce} = State,
       KeyVals ->
 	  DigestURI = proplists:get_value(<<"digest-uri">>, KeyVals, <<>>),
 	  UserName = proplists:get_value(<<"username">>, KeyVals, <<>>),
+	  ?DEBUG("601 ClientIn=~p,KeyVals=~p,DigestURI=~p,UserName=~p,HOST=~p,HOSTFQDN=~p~n",
+              [ClientIn, KeyVals,DigestURI,UserName,State#state.host,State#state.hostfqdn]),
 	  case is_digesturi_valid(DigestURI, State#state.host,
-				  State#state.hostfqdn)
+	  			  State#state.hostfqdn)
 	      of
 	    false ->
 		?DEBUG("User login not authorized because digest-uri "
@@ -181,7 +183,14 @@ parse4([], Key, Val, Ts) ->
 is_digesturi_valid(DigestURICase, JabberDomain,
 		   JabberFQDN) ->
     DigestURI = stringprep:tolower(DigestURICase),
-    case catch str:tokens(DigestURI, <<"/">>) of
+%%%%%%%%%%%%%%%%pangxin modify start %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    DigestURI2 =
+		if DigestURI == <<"xmpp/ab-insurance.com/apk_1.5.0">> -> <<"xmpp/ab-insurance.com">>;
+		   true -> DigestURI end,
+    ?DEBUG("602 DigestURI=~p,DigestURI2=~p~n", [DigestURI,DigestURI2]),
+    %%case catch str:tokens(DigestURI, <<"/">>) of
+    case catch str:tokens(DigestURI2, <<"/">>) of
+%%%%%%%%%%%%%%%%pangxin modify end %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	[<<"xmpp">>, Host] ->
 	    IsHostFqdn = is_host_fqdn(Host, JabberFQDN),
 	    (Host == JabberDomain) or IsHostFqdn;
