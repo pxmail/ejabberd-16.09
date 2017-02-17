@@ -6,6 +6,7 @@
 .#*
 .edts
 *.dump
+*.log
 .DS_Store
 /Makefile
 /config.log
