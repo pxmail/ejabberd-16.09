@@ -199,7 +199,7 @@ add_user_old(LServer, LUser, Password) ->
 add_user(LServer, LUser, Password) ->
 	{M, S, Ms} = os:timestamp(),
     TS = M * 1000000000 + S * 1000 + Ms,
-	TS2 = list_to_binary("00" ++ integer_to_list(M2)),
+	TS2 = list_to_binary("00" ++ integer_to_list(TS)),
     ejabberd_sql:sql_query(
       LServer,
       ?SQL("insert into ofuser(username, plainpassword, creationdate, modificationdate) "
