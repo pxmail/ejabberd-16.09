@@ -277,14 +277,13 @@ raw_to_record(LServer,
 		  us = {User, LServer}, jid = LJID, name = Nick,
 		  subscription = Sub, ask = Ask}
     end.
-%%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 start%%%%%%%%%%%%%%%%%%%%%%%
 
-record_to_row(
+
+record_to_row_old(
   #roster{us = {LUser, _LServer},
           jid = JID, name = Name, subscription = Subscription,
           ask = Ask, askmessage = AskMessage}) ->
     SJID = jid:to_string(jid:tolower(JID)),
-    ?DEBUG("1009 Subscription=~p~n", [Subscription]),
     SSubscription = case Subscription of
 		      both -> <<"B">>;
 		      to -> <<"T">>;
@@ -300,3 +299,29 @@ record_to_row(
 	     none -> <<"N">>
 	   end,
     {LUser, SJID, Name, SSubscription, SAsk, AskMessage}.
+
+
+record_to_row(
+  #roster{us = {LUser, _LServer},
+          jid = JID, name = Name, subscription = Subscription,
+          ask = Ask, askmessage = AskMessage}) ->
+    SJID = jid:to_string(jid:tolower(JID)),
+    ?DEBUG("1009 Subscription=~p~n", [Subscription]),
+    SSubscription = case Subscription of
+		      both -> 3;
+		      to -> 2;
+		      from -> 1;
+		      none -> 0
+		    end,
+    SAsk = case Ask of
+	     subscribe -> 0;
+	     unsubscribe -> 1;
+	     both -> -1;
+	     out -> -2;
+	     in -> -2;
+	     none -> -2
+	   end,
+    {LUser, SJID, Name, SSubscription, SAsk, AskMessage}.
+%%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 end%%%%%%%%%%%%%%%%%%%%%%%
+
+
