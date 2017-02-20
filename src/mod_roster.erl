@@ -147,8 +147,11 @@ process_iq(From, To, IQ) ->
     ?DEBUG("********2****: ~p, ~n", [IQ]),
     #iq{sub_el = SubEl, lang = Lang} = IQ,
     #jid{lserver = LServer} = From,
+	?DEBUG("1003 LServer=~p,MYHOSTS=~p~n", [LServer, ?MYHOSTS]),
     case lists:member(LServer, ?MYHOSTS) of
-      true -> process_local_iq(From, To, IQ);
+      true -> 
+			?DEBUG("1005 From=~p, To=~p, IQ=~p~n", [From, To, IQ]),
+			process_local_iq(From, To, IQ);
       _ ->
 	  Txt = <<"The query is only allowed from local users">>,
 	  IQ#iq{type = error,
