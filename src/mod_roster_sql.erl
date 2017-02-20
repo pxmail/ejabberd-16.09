@@ -284,6 +284,7 @@ record_to_row(
           jid = JID, name = Name, subscription = Subscription,
           ask = Ask, askmessage = AskMessage}) ->
     SJID = jid:to_string(jid:tolower(JID)),
+    ?DEBUG("1009 Subscription=~p~n", [Subscription]),
     SSubscription = case Subscription of
 		      both -> <<"B">>;
 		      to -> <<"T">>;
