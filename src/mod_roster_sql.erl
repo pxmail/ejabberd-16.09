@@ -142,7 +142,7 @@ update_roster(LUser, LServer, LJID, Item) ->
     SJID = jid:to_string(LJID),
     ItemVals = record_to_row(Item),
     ItemGroups = Item#roster.groups,
-    sql_queries:update_roster(LServer, LUser, SJID, ItemVals,
+    sql_queries:update_roster(LServer, binary_to_list(LUser), binary_to_list(SJID), ItemVals,
                                ItemGroups).
 
 del_roster(LUser, LServer, LJID) ->
