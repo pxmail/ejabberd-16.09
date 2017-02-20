@@ -66,6 +66,10 @@ start(Host, Opts) ->
 				  ?NS_VCARD, ?MODULE, process_local_iq, IQDisc),
     gen_iq_handler:add_iq_handler(ejabberd_sm, Host,
 				  ?NS_VCARD, ?MODULE, process_sm_iq, IQDisc),
+%%%%%%%%%%%%%%%%%%%%%%%%add by pangxin start %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    gen_iq_handler:add_iq_handler(ejabberd_sm, Host,
+				  ?NS_VCARD_BANGBANG, ?MODULE, process_sm_iq, IQDisc),
+%%%%%%%%%%%%%%%%%%%%%%%%add by pangxin start %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     ejabberd_hooks:add(disco_sm_features, Host, ?MODULE,
 		       get_sm_features, 50),
     MyHost = gen_mod:get_opt_host(Host, Opts,

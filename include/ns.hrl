@@ -23,6 +23,9 @@
 -define(NS_DISCO_INFO,
 	<<"http://jabber.org/protocol/disco#info">>).
 -define(NS_VCARD, <<"vcard-temp">>).
+%%%%%%%%%%%%%%%%%%%%%%%%add by pangxin start %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-define(NS_VCARD_BANGBANG, <<"http://www.nihualao.com/xmpp/userinfo">>).
+%%%%%%%%%%%%%%%%%%%%%%%%add by pangxin start %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -define(NS_VCARD_UPDATE, <<"vcard-temp:x:update">>).
 -define(NS_AUTH, <<"jabber:iq:auth">>).
 -define(NS_AUTH_ERROR, <<"jabber:iq:auth:error">>).
