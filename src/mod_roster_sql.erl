@@ -263,15 +263,15 @@ raw_to_record(LServer,
       ?DEBUG("801 SSub=~p,SAsk=~p~n", [SSub, SAsk]),
 %%       801 SSub=<<"3">>,SAsk=<<"-1">>
 	  Sub = case SSub of
-			   <<"3">> -> both;
-			   <<"1">> -> to;
-			   <<"2">> -> from;
-			   <<"0">> -> none
+			   3 -> both;
+			   1 -> to;
+			   2 -> from;
+			   0 -> none
 			 end,
 	  Ask = case SAsk of
-		  <<"0">>  -> subscribe;
-		  <<"1">>  -> unsubscribe;
-		  <<"-1">> -> none
+		  0  -> subscribe;
+		  1  -> unsubscribe;
+		  -1 -> none
 		end,
 	  #roster{usj = {User, LServer, LJID},
 		  us = {User, LServer}, jid = LJID, name = Nick,
