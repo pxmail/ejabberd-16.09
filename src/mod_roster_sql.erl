@@ -321,7 +321,15 @@ record_to_row(
 	     in -> -2;
 	     none -> -2
 	   end,
-    {LUser, SJID, Name, SSubscription, SAsk, AskMessage}.
+	Name2 = 
+		if Name == <<>> -> "";
+		   true -> Name
+		end,
+	AskMessage2 =
+		if AskMessage == <<>> -> "";
+		   true -> AskMessage
+		end,
+    {LUser, SJID, Name2, SSubscription, SAsk, AskMessage2}.
 %%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 end%%%%%%%%%%%%%%%%%%%%%%%
 
 
