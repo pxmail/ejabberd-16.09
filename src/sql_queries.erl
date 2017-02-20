@@ -401,6 +401,7 @@ del_roster_sql(Username, SJID) ->
 
 update_roster(_LServer, LUser, SJID, ItemVals,
 	      ItemGroups) ->
+    ?DEBUG("1010 ItemGroups=~p, ItemVals=~p~n", [ItemGroups, ItemVals]),
     roster_subscribe(ItemVals),
     ejabberd_sql:sql_query_t(
       ?SQL("delete from rostergroups"
