@@ -741,9 +741,11 @@ get_max_user_sessions(LUser, Host) ->
 
 process_iq(From, To, Packet) ->
     IQ = jlib:iq_query_info(Packet),
+    ?DEBUG("1001 IQ=~p~n", [IQ]),
     case IQ of
       #iq{xmlns = XMLNS, lang = Lang} ->
 	  Host = To#jid.lserver,
+      ?DEBUG("1002 XMLNS=~p, Host=~p~n", [XMLNS, Host]),
 	  case ets:lookup(sm_iqtable, {XMLNS, Host}) of
 	    [{_, Module, Function}] ->
 		ResIQ = Module:Function(From, To, IQ),
