@@ -382,6 +382,7 @@ process_item_set(From, To,
 					     Attrs)),
     #jid{user = User, luser = LUser, lserver = LServer} =
 	From,
+    ?DEBUG("1006 JID1=~p,User=~p,LUser=~p,LServer=~p~n", [JID1,User,LUser,LServer]),
     case JID1 of
       error -> ok;
       _ ->
@@ -393,6 +394,7 @@ process_item_set(From, To,
 		      Item3 = ejabberd_hooks:run_fold(roster_process_item,
 						      LServer, Item2,
 						      [LServer]),
+              ?DEBUG("1007 Item3=~p,Item3#roster.subscription=~p~n", [Item3,Item3#roster.subscription]),
 		      case Item3#roster.subscription of
 			remove -> del_roster_t(LUser, LServer, LJID);
 			_ -> update_roster_t(LUser, LServer, LJID, Item3)
