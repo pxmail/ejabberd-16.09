@@ -486,11 +486,11 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	      		?SQL("select max(@(rosterid)d) from ofRoster "
 	                 "")) of
 	      	{selected, []} ->
-			  	0;
+			  	1;
 	      	{selected, MaxRosterId} ->
 		  	   MaxRosterId + 1;
 	      	_ -> 
-	            0
+	            2
 	    end,
     ?DEBUG("1019 MaxRosterId2=~p~n", [MaxRosterId2]),
 	Res1 = 
