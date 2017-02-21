@@ -815,7 +815,7 @@ set_items(User, Server, SubEl) ->
 
 update_roster_t(LUser, LServer, LJID, Item) ->
     Mod = gen_mod:db_mod(LServer, ?MODULE),
-    ?DEBUG("1008 Mod=~p, LUser=~p, LServer=~p, LJID=~p, Item=~p~n", [Mod, LUser, LServer, LJID, Item]),
+    ?DEBUG("1013 Mod=~p, LUser=~p, LServer=~p, LJID=~p, Item=~p~n", [Mod, LUser, LServer, LJID, Item]),
     Mod:update_roster(LUser, LServer, LJID, Item).
 
 del_roster_t(LUser, LServer, LJID) ->

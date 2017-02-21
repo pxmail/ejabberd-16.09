@@ -310,7 +310,7 @@ record_to_row(
           jid = JID, name = Name, subscription = Subscription,
           ask = Ask, askmessage = AskMessage}) ->
     SJID = jid:to_string(jid:tolower(JID)),
-    ?DEBUG("1009 Subscription=~p~n", [Subscription]),
+    ?DEBUG("1015 Subscription=~p~n", [Subscription]),
     SSubscription = case Subscription of
 		      both -> 3;  %%好友已经相互添加The roster item and the owner have a mutual subscription.(Openfire定义)
 		      to -> 2;    %%收到好友请求并且加对方好友The roster item has a subscription to the roster owner’s presence.(Openfire定义)
@@ -321,9 +321,9 @@ record_to_row(
 	     subscribe -> 0;
 	     unsubscribe -> 1;
 	     both -> -1;
-	     out -> -2;
-	     in -> -2;
-	     none -> -2
+	     out -> -1;
+	     in -> -1;
+	     none -> -1
 	   end,
 	Name2 = 
 		if Name == <<>> -> "";
@@ -333,6 +333,7 @@ record_to_row(
 		if AskMessage == <<>> -> "";
 		   true -> AskMessage
 		end,
+    ?DEBUG("1016 Subscription=~p~n", [Subscription]),
     {LUser, SJID, Name2, SSubscription, SAsk, AskMessage2}.
 %%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 end%%%%%%%%%%%%%%%%%%%%%%%
 
