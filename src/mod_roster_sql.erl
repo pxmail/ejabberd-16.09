@@ -110,7 +110,7 @@ get_only_items(LUser, LServer) ->
 	_ -> []
     end.
 
-roster_subscribe(_LUser, _LServer, _LJID, Item) ->
+roster_subscribe(_LUser, LServer, _LJID, Item) ->
     ItemVals = record_to_row(Item),
     sql_queries:roster_subscribe(ItemVals).
 

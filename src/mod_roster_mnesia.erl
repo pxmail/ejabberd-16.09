@@ -68,6 +68,7 @@ get_only_items(LUser, LServer) ->
     get_roster(LUser, LServer).
 
 roster_subscribe(_LUser, _LServer, _LJID, Item) ->
+    ?DEBUG("1020 mod_roster_mnesia ~n", []),
     mnesia:write(Item).
 
 get_roster_by_jid_with_groups(LUser, LServer, LJID) ->
@@ -88,6 +89,7 @@ remove_user(LUser, LServer) ->
     mnesia:transaction(F).
 
 update_roster(_LUser, _LServer, _LJID, Item) ->
+    ?DEBUG("1021 mod_roster_mnesia ~n", []),
     mnesia:write(Item).
 
 del_roster(LUser, LServer, LJID) ->

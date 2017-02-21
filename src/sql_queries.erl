@@ -42,7 +42,7 @@
 	 get_roster_groups/3, del_user_roster_t/2,
 	 get_roster_by_jid/3, get_rostergroup_by_jid/3,
 	 del_roster/3, del_roster_sql/2, update_roster/5,
-	 update_roster_sql/2, roster_subscribe/1,
+	 update_roster_sql/2, roster_subscribe/1, roster_subscribe/2,
 	 get_subscription/3, set_private_data/4,
 	 set_private_data_sql/3, get_private_data/3,
 	 get_private_data/2, del_user_private_storage/2,
@@ -475,6 +475,30 @@ roster_subscribe({LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
         "nick=%(Nick)s",
         "sub=%(SSub)s",
         "ask=%(SAsk)s"]).
+
+roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
+	 %%ejabberd_sql:sql_query(LServer,
+     %% ?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, nick) "
+     %%      "values (%(LUser)s, %(Password)s)")).
+	 Res1 = 
+     	ejabberd_sql:sql_query(LServer,
+      		?SQL("select @(max(rosterid)s from ofRoster ")),
+     ?DEBUG("1019 Res1=~p~n", [Res1]),
+	 SQL_UPSERT_T(
+       "ofroster",
+       ["!username=%(LUser)s",
+        "!jid=%(SJID)s",
+        "nick=%(Nick)s",
+        "sub=%(SSub)s",
+        "ask=%(SAsk)s"]).
+
+
+
+     %%ejabberd_sql:sql_query(LServer,
+     %% ?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, nick) "
+     %%      "values (%(LUser)s, %(Password)s)")).
+
+
 %%%%%%%%%%%%%%%%%%%%%%%ODBC modify end %%%%%%%%%%%%%%%%%%%%%%%%
 
 get_subscription(LServer, LUser, SJID) ->
