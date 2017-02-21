@@ -495,11 +495,13 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	            error
 	    end,
 %% MaxRosterId2=1,LUser=<<"176926">>, SJID=<<"121048@ab-insurance.com">>, Nick=[], SSub=0, SAsk=-1
-    LUser2 = list_to_atom(binary_to_list(LUser)),
-    SJID2 = list_to_atom(binary_to_list(SJID)),
+%%     LUser2 = list_to_atom(binary_to_list(LUser)),
+	LUser2 = "'" ++ binary_to_list(LUser) ++ "'",
+%%     SJID2 = list_to_atom(binary_to_list(SJID)),
+    SJID2 = "'" ++ binary_to_list(SJID) ++ "'",
     Recv = -1,
 	Nick2 =
-		if Nick == [] -> '';
+		if Nick == [] -> "''";
 		   true -> Nick
 		end,
     ?DEBUG("1019 MaxRosterId2=~p,LUser=~p, SJID=~p, Nick=~p, SSub=~p, SAsk=~p~n", [MaxRosterId2, LUser2, SJID2, Nick2, SSub, SAsk]),
