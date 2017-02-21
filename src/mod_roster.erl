@@ -355,6 +355,7 @@ item_to_xml(Item) ->
 
 get_roster_by_jid_t(LUser, LServer, LJID) ->
     Mod = gen_mod:db_mod(LServer, ?MODULE),
+	?DEBUG("1013 Mod=~p~n", [Mod]),
     Mod:get_roster_by_jid(LUser, LServer, LJID).
 
 try_process_iq_set(From, To, #iq{sub_el = SubEl, lang = Lang} = IQ) ->
