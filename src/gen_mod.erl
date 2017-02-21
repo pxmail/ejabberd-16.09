@@ -257,6 +257,7 @@ get_opt({Opt, Host}, Opts, F, Default) ->
             ejabberd_config:prepare_opt_val(Opt, Val, F, Default)
     end;
 get_opt(Opt, Opts, F, Default) ->
+    ?DEBUG("1008 Opt=~p, Opts=~p, F=~p, Default=~p~n", [Opt, Opts, F, Default]),
     case lists:keysearch(Opt, 1, Opts) of
         false ->
             Default;
@@ -288,6 +289,7 @@ get_module_opt(global, Module, Opt, F, Default) ->
     end;
 get_module_opt(Host, Module, Opt, F, Default) ->
     OptsList = ets:lookup(ejabberd_modules, {Module, Host}),
+    ?DEBUG("1007 Module=~p, Host=~p, Opt=~p, F=~p, MODULE=~p, OptsList=~p~n", [Module, Host, Opt, F, Default, OptsList]),
     case OptsList of
       [] -> Default;
       [#ejabberd_module{opts = Opts} | _] ->

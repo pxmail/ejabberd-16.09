@@ -359,18 +359,22 @@ get_roster_by_jid_t(LUser, LServer, LJID) ->
 
 try_process_iq_set(From, To, #iq{sub_el = SubEl, lang = Lang} = IQ) ->
     #jid{server = Server} = From,
+    ?DEBUG("1006 Server=~p,MODULE=~p~n", [Server, ?MODULE]),
     Access = gen_mod:get_module_opt(Server, ?MODULE, access, fun(A) -> A end, all),
+    ?DEBUG("1009 Server=~p,Access=~p,From=~p~n", [Server, Access, From]),
     case acl:match_rule(Server, Access, From) of
 	deny ->
 	    Txt = <<"Denied by ACL">>,
 	    IQ#iq{type = error, sub_el = [SubEl, ?ERRT_NOT_ALLOWED(Lang, Txt)]};
 	allow ->
+        ?DEBUG("1010 From=~p,To=~p,IQ=~p~n", [From, To, IQ]),
 	    process_iq_set(From, To, IQ)
     end.
 
 process_iq_set(From, To, #iq{sub_el = SubEl, id = Id} = IQ) ->
     #xmlel{children = Els} = SubEl,
     Managed = is_managed_from_id(Id),
+    ?DEBUG("1011 Managed=~p,Id=~p~n", [Managed, Id]),
     lists:foreach(fun (El) -> process_item_set(From, To, El, Managed)
 		  end,
 		  Els),
@@ -382,7 +386,7 @@ process_item_set(From, To,
 					     Attrs)),
     #jid{user = User, luser = LUser, lserver = LServer} =
 	From,
-    ?DEBUG("1006 JID1=~p,User=~p,LUser=~p,LServer=~p~n", [JID1,User,LUser,LServer]),
+    ?DEBUG("1012 JID1=~p,User=~p,LUser=~p,LServer=~p~n", [JID1,User,LUser,LServer]),
     case JID1 of
       error -> ok;
       _ ->
@@ -394,7 +398,7 @@ process_item_set(From, To,
 		      Item3 = ejabberd_hooks:run_fold(roster_process_item,
 						      LServer, Item2,
 						      [LServer]),
-              ?DEBUG("1007 Item3=~p,Item3#roster.subscription=~p~n", [Item3,Item3#roster.subscription]),
+              ?DEBUG("1009 Item3=~p,Item3#roster.subscription=~p~n", [Item3,Item3#roster.subscription]),
 		      case Item3#roster.subscription of
 			remove -> del_roster_t(LUser, LServer, LJID);
 			_ -> update_roster_t(LUser, LServer, LJID, Item3)

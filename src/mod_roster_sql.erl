@@ -142,8 +142,12 @@ update_roster(LUser, LServer, LJID, Item) ->
     SJID = jid:to_string(LJID),
     ItemVals = record_to_row(Item),
     ItemGroups = Item#roster.groups,
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin start  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	%%sql_queries:update_roster(LServer, LUser, SJID, ItemVals,
+    %%                           ItemGroups).
     sql_queries:update_roster(LServer, binary_to_list(LUser), binary_to_list(SJID), ItemVals,
                                ItemGroups).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin end  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 del_roster(LUser, LServer, LJID) ->
     SJID = jid:to_string(LJID),
@@ -308,10 +312,10 @@ record_to_row(
     SJID = jid:to_string(jid:tolower(JID)),
     ?DEBUG("1009 Subscription=~p~n", [Subscription]),
     SSubscription = case Subscription of
-		      both -> 3;
-		      to -> 2;
-		      from -> 1;
-		      none -> 0
+		      both -> 3;  %%好友已经相互添加The roster item and the owner have a mutual subscription.(Openfire定义)
+		      to -> 2;    %%收到好友请求并且加对方好友The roster item has a subscription to the roster owner’s presence.(Openfire定义)
+		      from -> 1;  %%用户已经发出好友请求The roster owner has a subscription to the roster item’s presence.(Openfire定义)
+		      none -> 0   %%没有建立好友关系No subscription is established.(Openfire定义)
 		    end,
     SAsk = case Ask of
 	     subscribe -> 0;
