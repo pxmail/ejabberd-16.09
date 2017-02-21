@@ -483,7 +483,8 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	 Res1 = 
      	ejabberd_sql:sql_query(
             LServer,
-      		?SQL("select @(max(rosterid)s from ofRoster ")),
+      		?SQL("select @(max(rosterid)s from ofRoster "
+                 " where 1=1")),
      ?DEBUG("1019 Res1=~p~n", [Res1]).
 
 
