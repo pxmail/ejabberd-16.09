@@ -333,7 +333,7 @@ record_to_row(
 		if AskMessage == <<>> -> "";
 		   true -> AskMessage
 		end,
-    ?DEBUG("1016 Subscription=~p~n", [Subscription]),
+    ?DEBUG("1016 LUser=~p, SJID=~p, Name2=~p, SSubscription=~p, SAsk=~p, AskMessage2=~p~n", [LUser, SJID, Name2, SSubscription, SAsk, AskMessage2]),
     {LUser, SJID, Name2, SSubscription, SAsk, AskMessage2}.
 %%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 end%%%%%%%%%%%%%%%%%%%%%%%
 
