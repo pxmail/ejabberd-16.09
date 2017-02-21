@@ -484,7 +484,7 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 		case ejabberd_sql:sql_query(
 	            LServer,
 	      		%%?SQL("select max(@(rosterid)d) from ofRoster "
-                ?SQL("select @(max(rosterid))d from ofRoster "
+                ?SQL("select @(to_number(max(rosterid)))d from ofRoster "
 	                 "")) of
 	      	{selected, []} ->
 			  	1;
