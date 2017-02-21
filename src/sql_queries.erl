@@ -414,10 +414,10 @@ update_roster_old(_LServer, LUser, SJID, ItemVals,
       end,
       ItemGroups).
 
-update_roster(_LServer, LUser, SJID, ItemVals,
+update_roster(LServer, LUser, SJID, ItemVals,
 	      ItemGroups) ->
     ?DEBUG("1010 ItemGroups=~p, ItemVals=~p~n", [ItemGroups, ItemVals]),
-    roster_subscribe(ItemVals),
+    roster_subscribe(LServer, ItemVals),
     ejabberd_sql:sql_query_t(
       ?SQL("delete from rostergroups"
            " where username=%(LUser)s and jid=%(SJID)s")),
