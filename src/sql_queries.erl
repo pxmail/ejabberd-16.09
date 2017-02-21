@@ -490,7 +490,7 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 			  	1;
 	      	{selected, [{MaxRosterId}]} ->  %%MaxRosterId=[{<<"4603">>}]
 			   ?DEBUG("1020 MaxRosterId=~p~n", [binary_to_integer((MaxRosterId)]),
-		  	   binary_to_integer((MaxRosterId) + 1;
+		  	   binary_to_integer(MaxRosterId) + 1;
 	      	_ -> 
 	            error
 	    end,
