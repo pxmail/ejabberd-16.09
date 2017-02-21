@@ -399,7 +399,7 @@ process_item_set(From, To,
 		      Item3 = ejabberd_hooks:run_fold(roster_process_item,
 						      LServer, Item2,
 						      [LServer]),
-              ?DEBUG("1009 Item3=~p,Item3#roster.subscription=~p~n", [Item3,Item3#roster.subscription]),
+              ?DEBUG("1009 Item=~p,Item1=~p,Item2=~p,Item3=~p,Item3#roster.subscription=~p~n", [Item,Item1,Item2,Item3,Item3#roster.subscription]),
 		      case Item3#roster.subscription of
 			remove -> del_roster_t(LUser, LServer, LJID);
 			_ -> update_roster_t(LUser, LServer, LJID, Item3)
