@@ -492,11 +492,18 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	      	_ -> 
 	            error
 	    end,
+%% MaxRosterId2=1,LUser=<<"176926">>, SJID=<<"121048@ab-insurance.com">>, Nick=[], SSub=0, SAsk=-1
+    LUser2 = binary_to_list(LUser),
+    SJID2 = binary_to_list(SJID),
+	Nick2 =
+		if Nick == [] -> "";
+		   true -> Nick
+		end,
     ?DEBUG("1019 MaxRosterId2=~p,LUser=~p, SJID=~p, Nick=~p, SSub=~p, SAsk=~p~n", [MaxRosterId2, LUser, SJID, Nick, SSub, SAsk]),
 	Res1 = 
 	  ejabberd_sql:sql_query(LServer,
 			?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, nick) "
-     			 "values (%(MaxRosterId2)d, %(LUser)s, %(SJID)s), %(SSub)s, %(SAsk)s, %(Nick)s")),
+     			 "values (%(MaxRosterId2)d, %(LUser2)s, %(SJID2)s), %(SSub)s, %(SAsk)s, %(Nick2)s")),
      ?DEBUG("1020 Res1=~p~n", [Res1]).
 
 
