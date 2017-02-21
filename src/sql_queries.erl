@@ -501,7 +501,7 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
     SJID2 = "'" ++ binary_to_list(SJID) ++ "'",
     Recv = -1,
 	Nick2 =
-		if Nick == [] -> "''";
+		if Nick == [] -> <<>>;
 		   true -> Nick
 		end,
     ?DEBUG("1018 LUser=~p, SJID=~p~n", [LUser, SJID]),
