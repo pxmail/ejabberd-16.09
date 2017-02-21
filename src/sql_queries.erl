@@ -483,7 +483,7 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	MaxRosterId2 = 
 		case ejabberd_sql:sql_query(
 	            LServer,
-	      		?SQL("select max(@(rosterid)f) from ofRoster "
+	      		?SQL("select max(@(rosterid)s) from ofRoster "
 	                 "")) of
 	      	{selected, []} ->
 			  	1;
