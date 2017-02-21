@@ -492,7 +492,7 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	      	_ -> 
 	            0
 	    end,
-    ?DEBUG("1019 MaxRosterId2=~p~n", [MaxRosterId2]).
+    ?DEBUG("1019 MaxRosterId2=~p~n", [MaxRosterId2]),
 	Res1 = 
 	  ejabberd_sql:sql_query(LServer,
 			?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, nick) "
