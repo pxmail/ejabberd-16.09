@@ -495,7 +495,7 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	Res1 = 
 	  ejabberd_sql:sql_query(LServer,
 			?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, nick) "
-     			 "values (%(MaxRosterId2)d, %(LUser)s, %(SJID)s), %(SSub)s, %(SAsk)s, %(Nick)s")).
+     			 "values (%(MaxRosterId2)d, %(LUser)s, %(SJID)s), %(SSub)s, %(SAsk)s, %(Nick)s")),
      ?DEBUG("1019 Res1=~p~n", [Res1]).
 
 
