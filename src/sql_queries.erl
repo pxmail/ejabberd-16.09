@@ -480,16 +480,23 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	 %%ejabberd_sql:sql_query(LServer,
      %% ?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, nick) "
      %%      "values (%(LUser)s, %(Password)s)")).
-	 Res1 = 
-     	ejabberd_sql:sql_query(
-            LServer,
-      		?SQL("select max(@(rosterid)d) from ofRoster "
-                 " where 1=1")),
+	MaxRosterId2 = 
+		case ejabberd_sql:sql_query(
+	            LServer,
+	      		?SQL("select max(@(rosterid)d) from ofRoster "
+	                 " where 1=1")) of
+	      	{selected, []} ->
+			  	0;
+	      	{selected, MaxRosterId} ->
+		  	   MaxRosterId + 1;
+	      	_ -> 
+	            0
+	    end,
+	Res1 = 
+	  ejabberd_sql:sql_query(LServer,
+			?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, nick) "
+     			 "values (%(MaxRosterId2)d, %(LUser)s, %(SJID)s), %(SSub)s, %(SAsk)s, %(Nick)s")).
      ?DEBUG("1019 Res1=~p~n", [Res1]).
-
-     %%ejabberd_sql:sql_query(LServer,
-     %% ?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, nick) "
-     %%      "values (%(LUser)s, %(Password)s)")).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%ODBC modify end %%%%%%%%%%%%%%%%%%%%%%%%
