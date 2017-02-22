@@ -86,7 +86,7 @@ get_roster(LUser, LServer) ->
 get_roster_by_jid(LUser, LServer, LJID) ->
     {selected, Res} =
 	sql_queries:get_roster_by_jid(LServer, LUser, jid:to_string(LJID)),
-%%     ?DEBUG("1027 Res=~p~n", [Res]),
+    ?DEBUG("1027 Res=~p~n", [Res]),
     case Res of
 	[] ->
 	    #roster{usj = {LUser, LServer, LJID},
