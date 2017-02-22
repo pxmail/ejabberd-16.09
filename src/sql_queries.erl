@@ -511,11 +511,11 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 				     			 "values (%(MaxRosterId2)d, %(LUser)s, %(SJID)s, %(SSub)d, %(SAsk)d, %(Recv)d, %(Nick2)s)")),
 				    ?DEBUG("1020 Res1=~p~n", [Res1]);
 				false ->
-                    ?DEBUG("1031 CountBinary=~p~n", [CountBinary,LUser,SJID,Nick2,SSub,SAsk,Recv]),
+                    ?DEBUG("1031 CountBinary=~p,LUser=~p,SJID=~p,LUser2=~p,SJID2=~p,Nick2=~p,SSub=~p,SAsk=~p,Recv=~p~n", [CountBinary,LUser,SJID,LUser2,SJID2,Nick2,SSub,SAsk,Recv]),
 		    		?SQL_UPSERT_T(
 				       "ofroster",
-				       ["!username=%(LUser)s",
-				        "!jid=%(SJID)s",
+				       ["!username=%(LUser2)s",
+				        "!jid=%(SJID2)s",
 				        "nick=%(Nick2)s",
 				        "sub=%(SSub)s",
 				        "ask=%(SAsk)s",
