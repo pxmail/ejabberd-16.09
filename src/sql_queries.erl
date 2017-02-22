@@ -481,6 +481,12 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	 %%ejabberd_sql:sql_query(LServer,
      %% ?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, nick) "
      %%      "values (%(LUser)s, %(Password)s)")).
+	LUser2 = "'" ++ util:to_list(LUser) ++ "'",
+    SJID2 = "'" ++ util:to_list(SJID) ++ "'",
+    Recv = -1,
+	Nick2 = if Nick == [] -> <<>>;
+		   		true -> Nick
+			end,
 	case ejabberd_sql:sql_query(LServer,
       		?SQL("select @(to_char(count(rosterid)))s from ofRoster"
            		 " where username=%(LUser)s and jid=%(SJID)s")) of
@@ -498,13 +504,6 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 					      	_ -> 
 					           error
 					    end,
-					LUser2 = "'" ++ util:to_list(LUser) ++ "'",
-				    SJID2 = "'" ++ util:to_list(SJID) ++ "'",
-				    Recv = -1,
-					Nick2 =
-						if Nick == [] -> <<>>;
-						   true -> Nick
-						end,
 				    ?DEBUG("1019 MaxRosterId2=~p,LUser2=~p, SJID2=~p, Nick2=~p, SSub=~p, SAsk=~p~n", [MaxRosterId2, LUser2, SJID2, Nick2, SSub, SAsk]),
 					Res1 = 
 					    ejabberd_sql:sql_query(LServer,
