@@ -275,7 +275,7 @@ raw_to_record(LServer,
 			   0 -> none
 			 end,
 %% 	  Ask = case util:to_integer(SAsk) of
-      Ask = SAsk of
+      Ask = case SAsk of
 		  0  -> subscribe;
 		  1  -> unsubscribe;
 		  -1 -> none
