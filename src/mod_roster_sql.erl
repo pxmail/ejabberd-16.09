@@ -274,7 +274,7 @@ raw_to_record(LServer,
 			   <<"3">> -> both;
 			   <<"1">> -> to;
 			   <<"2">> -> from;
-			   <<"0">> -> none；
+			   <<"0">> -> none;
                      3 -> both;
 			         1 -> to;
 			         2 -> from;
