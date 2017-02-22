@@ -514,7 +514,7 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
                     ?DEBUG("1031 CountBinary=~p,LUser=~p,SJID=~p,LUser2=~p,SJID2=~p,Nick2=~p,SSub=~p,SAsk=~p,Recv=~p~n", [CountBinary,LUser,SJID,LUser2,SJID2,Nick2,SSub,SAsk,Recv]),
 		    		?SQL_UPSERT_T(
 				       "ofroster",
-				       ["!username=%(LUser2)s",
+				       ["!username=%(LUser)s",
 				        "!jid=%(SJID2)s",
 				        "nick=%(Nick2)s",
 				        "sub=%(SSub)d",
