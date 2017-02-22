@@ -515,7 +515,7 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 		    		?SQL_UPSERT_T(
 				       "ofroster",
 				       ["!username=%(LUser)s",
-				        "!jid=%(SJID2)s",
+				        "!jid=%(SJID)s",
 				        "nick=%(Nick2)s",
 				        "sub=%(SSub)d",
 				        "ask=%(SAsk)d",
