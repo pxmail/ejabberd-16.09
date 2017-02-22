@@ -517,9 +517,9 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 				       ["!username=%(LUser2)s",
 				        "!jid=%(SJID2)s",
 				        "nick=%(Nick2)s",
-				        "sub=%(SSub)s",
-				        "ask=%(SAsk)s",
-                        "recv=%(Recv)s"]),
+				        "sub=%(SSub)d",
+				        "ask=%(SAsk)d",
+                        "recv=%(Recv)d"]),
 %% 	    			ejabberd_sql:sql_query(
 %%               ?SQL("update ofRoster set"
 %%                    " host=%(H)s,"
