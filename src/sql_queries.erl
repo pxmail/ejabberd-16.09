@@ -481,6 +481,16 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	 %%ejabberd_sql:sql_query(LServer,
      %% ?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, nick) "
      %%      "values (%(LUser)s, %(Password)s)")).
+	case ejabberd_sql:sql_query(LServer,
+      		?SQL("select @(to_char(count(rosterid)))s from ofRoster"
+           		 " where username=%(LUser)s and jid=%(SJID)s")) of
+		{selected, []} ->
+			?DEBUG("1025 11111111111111~n", []);
+		R ->
+			?DEBUG("1026 MaxRosterId=~p~n", [R])
+	end,
+
+
 	MaxRosterId2 = 
 		case ejabberd_sql:sql_query(
 	            LServer,
