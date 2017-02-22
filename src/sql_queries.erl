@@ -484,44 +484,53 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	case ejabberd_sql:sql_query(LServer,
       		?SQL("select @(to_char(count(rosterid)))s from ofRoster"
            		 " where username=%(LUser)s and jid=%(SJID)s")) of
-		{selected, []} ->
-			?DEBUG("1025 11111111111111~n", []);
-		R ->
-			?DEBUG("1026 MaxRosterId=~p~n", [R])
-	end,
+		{selected, [{CountBinary}]} ->
+			case util:to_integer(CountBinary) == 0 of
+				true ->
+					MaxRosterId2 = 
+						case ejabberd_sql:sql_query(LServer,
+					      		%%?SQL("select max(@(rosterid)d) from ofRoster "
+				                ?SQL("select @(to_char(max(rosterid)))s from ofRoster "
+					                 "")) of
+					      	{selected, [{MaxRosterId}]} ->  %%MaxRosterId=[{<<"4603">>}]
+							   ?DEBUG("1020 MaxRosterId=~p~n", [util:to_integer(MaxRosterId)]),
+						  	   util:to_integer(MaxRosterId) + 1;
+					      	_ -> 
+					           error
+					    end,
+					LUser2 = "'" ++ util:to_list(LUser) ++ "'",
+				    SJID2 = "'" ++ util:to_list(SJID) ++ "'",
+				    Recv = -1,
+					Nick2 =
+						if Nick == [] -> <<>>;
+						   true -> Nick
+						end,
+				    ?DEBUG("1019 MaxRosterId2=~p,LUser2=~p, SJID2=~p, Nick2=~p, SSub=~p, SAsk=~p~n", [MaxRosterId2, LUser2, SJID2, Nick2, SSub, SAsk]),
+					Res1 = 
+					    ejabberd_sql:sql_query(LServer,
+							?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, recv, nick) "
+				     			 "values (%(MaxRosterId2)d, %(LUser)s, %(SJID)s, %(SSub)d, %(SAsk)d, %(Recv)d, %(Nick2)s)")),
+				    ?DEBUG("1020 Res1=~p~n", [Res1]);
+				false ->
+		    		?SQL_UPSERT_T(
+				       "ofroster",
+				       ["!username=%(LUser)s",
+				        "!jid=%(SJID)s",
+				        "nick=%(Nick2)s",
+				        "sub=%(SSub)s",
+				        "ask=%(SAsk)s"])
+%% 	    			ejabberd_sql:sql_query(
+%%               ?SQL("update ofRoster set"
+%%                    " host=%(H)s,"
+%%                    " node=%(Node)s,"
+%%                    " parent=%(Parent)s,"
+%%                    " type=%(Type)s "
+%%                    "where nodeid=%(OldNidx)d")),
+			end
+		end.
 
 
-	MaxRosterId2 = 
-		case ejabberd_sql:sql_query(
-	            LServer,
-	      		%%?SQL("select max(@(rosterid)d) from ofRoster "
-                ?SQL("select @(to_char(max(rosterid)))s from ofRoster "
-	                 "")) of
-	      	{selected, []} ->
-			  	1;
-	      	{selected, [{MaxRosterId}]} ->  %%MaxRosterId=[{<<"4603">>}]
-			   ?DEBUG("1020 MaxRosterId=~p~n", [binary_to_integer(MaxRosterId)]),
-		  	   binary_to_integer(MaxRosterId) + 1;
-	      	_ -> 
-	            error
-	    end,
-%% MaxRosterId2=1,LUser=<<"176926">>, SJID=<<"121048@ab-insurance.com">>, Nick=[], SSub=0, SAsk=-1
-%%     LUser2 = list_to_atom(binary_to_list(LUser)),
-	LUser2 = "'" ++ binary_to_list(LUser) ++ "'",
-%%     SJID2 = list_to_atom(binary_to_list(SJID)),
-    SJID2 = "'" ++ binary_to_list(SJID) ++ "'",
-    Recv = -1,
-	Nick2 =
-		if Nick == [] -> <<>>;
-		   true -> Nick
-		end,
-    ?DEBUG("1018 LUser=~p, SJID=~p~n", [LUser, SJID]),
-    ?DEBUG("1019 MaxRosterId2=~p,LUser=~p, SJID=~p, Nick=~p, SSub=~p, SAsk=~p~n", [MaxRosterId2, LUser2, SJID2, Nick2, SSub, SAsk]),
-	Res1 = 
-	  ejabberd_sql:sql_query(LServer,
-			?SQL("insert into ofRoster(rosterid, username, jid, sub, ask, recv, nick) "
-     			 "values (%(MaxRosterId2)d, %(LUser)s, %(SJID)s, %(SSub)d, %(SAsk)d, %(Recv)d, %(Nick2)s)")),
-     ?DEBUG("1020 Res1=~p~n", [Res1]).
+
 
 
 
