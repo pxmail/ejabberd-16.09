@@ -87,11 +87,13 @@ get_roster_by_jid(LUser, LServer, LJID) ->
     {selected, Res} =
 	sql_queries:get_roster_by_jid(LServer, LUser, jid:to_string(LJID)),
     ?DEBUG("1027 Res=~p~n", [Res]),
+%% Res=[{<<"176926">>,<<"121048@ab-insurance.com">>,<<"0">>,<<"-1">>,<<"-1">>,null},
+%%      {<<"176926">>,<<"121048@ab-insurance.com">>,<<"0">>,<<"-1">>,<<"-1">>,null}]
     case Res of
 	[] ->
 	    #roster{usj = {LUser, LServer, LJID},
 		    us = {LUser, LServer}, jid = LJID};
-	[I] ->
+	[I|_] ->
 	    R = raw_to_record(LServer, I),
 	    case R of
 		%% Bad JID in database:
