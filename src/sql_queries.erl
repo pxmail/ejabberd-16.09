@@ -511,13 +511,15 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 				     			 "values (%(MaxRosterId2)d, %(LUser)s, %(SJID)s, %(SSub)d, %(SAsk)d, %(Recv)d, %(Nick2)s)")),
 				    ?DEBUG("1020 Res1=~p~n", [Res1]);
 				false ->
+                    ?DEBUG("1031 CountBinary=~p~n", [CountBinary,LUser,SJID,Nick2,SSub,SAsk,Recv]),
 		    		?SQL_UPSERT_T(
 				       "ofroster",
 				       ["!username=%(LUser)s",
 				        "!jid=%(SJID)s",
 				        "nick=%(Nick2)s",
 				        "sub=%(SSub)s",
-				        "ask=%(SAsk)s"])
+				        "ask=%(SAsk)s",
+                        "recv=%(Recv)s"])
 %% 	    			ejabberd_sql:sql_query(
 %%               ?SQL("update ofRoster set"
 %%                    " host=%(H)s,"
@@ -525,6 +527,7 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 %%                    " parent=%(Parent)s,"
 %%                    " type=%(Type)s "
 %%                    "where nodeid=%(OldNidx)d")),
+					?DEBUG("1032 ~n", [])
 			end
 		end.
 
