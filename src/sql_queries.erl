@@ -333,7 +333,7 @@ get_roster_old(LServer, LUser) ->
 get_roster(LServer, LUser) ->
     ejabberd_sql:sql_query(
       LServer,
-      ?SQL("select @(rosterid))d, @(username)s, @(jid)s, @(sub)s, @(ask)s, @(recv)s, @(nick)s "
+      ?SQL("select @(rosterid)d, @(username)s, @(jid)s, @(sub)s, @(ask)s, @(recv)s, @(nick)s "
            "from ofroster where username=%(LUser)s")).
 %%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 end%%%%%%%%%%%%%%%%%%%%%%%%%
 
