@@ -266,13 +266,13 @@ raw_to_record(LServer,
 	  LJID = jid:tolower(JID),
       ?DEBUG("801 SSub=~p,SAsk=~p~n", [SSub, SAsk]),
 %%       801 SSub=<<"3">>,SAsk=<<"-1">>
-	  Sub = case SSub of
+	  Sub = case util:to_integer(SSub) of
 			   3 -> both;
 			   1 -> to;
 			   2 -> from;
 			   0 -> none
 			 end,
-	  Ask = case SAsk of
+	  Ask = case util:to_integer(SAsk) of
 		  0  -> subscribe;
 		  1  -> unsubscribe;
 		  -1 -> none

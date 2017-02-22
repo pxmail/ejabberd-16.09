@@ -418,16 +418,17 @@ update_roster(LServer, LUser, SJID, ItemVals,
 	      ItemGroups) ->
     ?DEBUG("1010 ItemGroups=~p, ItemVals=~p~n", [ItemGroups, ItemVals]),
     roster_subscribe(LServer, ItemVals),
-    ejabberd_sql:sql_query_t(
-      ?SQL("delete from rostergroups"
-           " where username=%(LUser)s and jid=%(SJID)s")),
-    lists:foreach(
-      fun(ItemGroup) ->
-              ejabberd_sql:sql_query_t(
-                ?SQL("insert into rostergroups(username, jid, grp) "
-                     "values (%(LUser)s, %(SJID)s, %(ItemGroup)s)"))
-      end,
-      ItemGroups).
+    %%ejabberd_sql:sql_query_t(
+    %%  ?SQL("delete from rostergroups"
+    %%       " where username=%(LUser)s and jid=%(SJID)s")),
+    %%lists:foreach(
+    %%  fun(ItemGroup) ->
+    %%          ejabberd_sql:sql_query_t(
+    %%            ?SQL("insert into rostergroups(username, jid, grp) "
+    %%                 "values (%(LUser)s, %(SJID)s, %(ItemGroup)s)"))
+    %%  end,
+    %%  ItemGroups).
+	todo.
 %%%%%%%%%%%%%%%%%%%modify by pangxin end %%%%%%%%%%%%%%%%%%%
 
 update_roster_sql({LUser, SJID, Name, SSubscription, SAsk, AskMessage},
