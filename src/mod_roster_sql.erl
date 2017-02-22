@@ -274,13 +274,20 @@ raw_to_record(LServer,
 			   <<"3">> -> both;
 			   <<"1">> -> to;
 			   <<"2">> -> from;
-			   <<"0">> -> none
+			   <<"0">> -> none；
+                     3 -> both;
+			         1 -> to;
+			         2 -> from;
+			         0 -> none
 			 end,
 	  Ask = case util:to_integer(SAsk) of
 %%       Ask = case SAsk of
 		  <<"0">>  -> subscribe;
 		  <<"1">>  -> unsubscribe;
-		  <<"-1">> -> none
+		  <<"-1">> -> none;
+                0  -> subscribe;
+		        1  -> unsubscribe;
+		       -1  -> none
 		end,
 	  #roster{usj = {User, LServer, LJID},
 		  us = {User, LServer}, jid = LJID, name = Nick,
