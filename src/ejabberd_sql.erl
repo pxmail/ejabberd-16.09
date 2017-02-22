@@ -180,7 +180,7 @@ keep_alive(PID) ->
 
 %% This function is intended to be used from inside an sql_transaction:
 sql_query_t(Query) ->
-%%     ?DEBUG("1022 Query=~p~n", [Query]),
+    ?DEBUG("1022 Query=~p~n", [Query]),
     QRes = sql_query_internal(Query),
     case QRes of
       {error, Reason} -> throw({aborted, Reason});
