@@ -346,13 +346,43 @@ get_roster_jid_groups_old(LServer, LUser) ->
 
 get_roster_jid_groups(LServer, LUser) ->
     [].
-%%%%%%%%%%%%%%%%%%%modify by pangxin end %%%%%%%%%%%%%%%%%%%%
 
-get_roster_groups(_LServer, LUser, SJID) ->
+
+get_roster_groups_old(_LServer, LUser, SJID) ->
     ejabberd_sql:sql_query_t(
       ?SQL("select @(grp)s from rostergroups"
            " where username=%(LUser)s and jid=%(SJID)s")).
 
+get_roster_groups(LServer, LUser, SJID) ->
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	case ejabberd_sql:sql_query(LServer,
+      		?SQL("select @(rosterid)s from ofRoster"
+           		 " where username=%(LUser)s and jid=%(SJID)s")) of
+        {selected, []} ->
+            ?DEBUG("1071 LUser=~p,SJID=~p~n", [LUser, SJID]),
+			todo;
+		{selected, [{RosterId}]} ->%%LRosterId=<<"4604">>
+            ?DEBUG("1072 LRosterId=~p~n", [RosterId]),
+			case ejabberd_sql:sql_query(LServer,
+	                ?SQL("select @(groupName)s from ofRosterGroups"
+           		 		 " where rosterID=%(RosterId)s ")) of
+                {selected, []} ->
+					?DEBUG("1073 Res1=~p~n", [Res]);
+		      	{selected, [Res]} ->
+				   ?DEBUG("1073 Res1=~p~n", [Res]);
+		      	error ->
+		           error
+		    end,
+		    ?DEBUG("1075 ~n", []);
+		Res2 ->
+			?DEBUG("1076 Res2=~p~n", [Res2])
+		end.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%modify by pangxin end %%%%%%%%%%%%%%%%%%%%
 del_user_roster_t(LServer, LUser) ->
     ejabberd_sql:sql_transaction(
       LServer,
