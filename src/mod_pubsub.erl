@@ -987,6 +987,7 @@ do_route(ServerHost, Access, Plugins, Host, From, To, Packet) ->
 			    end,
 			    ejabberd_router:route(To, From, Res);
 			#iq{} ->
+                ?DEBUG("1031 ================~n", []),
 			    Err = jlib:make_error_reply(Packet, ?ERR_FEATURE_NOT_IMPLEMENTED),
 			    ejabberd_router:route(To, From, Err);
 			_ ->
@@ -1213,6 +1214,7 @@ iq_pubsub(Host, ServerHost, From, IQType, SubEl, Lang, Access, Plugins) ->
 		    end,
 		    case lists:member(Type, Plugins) of
 			false ->
+                ?DEBUG("1032 Type=~p, Plugins=~p~n", [Type, Plugins]),
 			    {error,
 				extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"create-nodes">>)};
 			true ->
@@ -1292,6 +1294,7 @@ iq_pubsub(Host, ServerHost, From, IQType, SubEl, Lang, Access, Plugins) ->
 		    JID = fxml:get_attr_s(<<"jid">>, Attrs),
 		    set_options(Host, Node, JID, SubId, Els);
 		_ ->
+            ?DEBUG("1033 IQType=~p, Name=~p~n", [IQType, Name]),
 		    {error, ?ERR_FEATURE_NOT_IMPLEMENTED}
 	    end;
 	Other ->
@@ -1330,6 +1333,7 @@ iq_pubsub_owner(Host, ServerHost, From, IQType, SubEl, Lang) ->
 		{set, <<"affiliations">>} ->
 		    set_affiliations(Host, Node, From, fxml:remove_cdata(Els));
 		_ ->
+            ?DEBUG("1035 IQType=~p, Name=~p~n", [IQType, Name]),
 		    {error, ?ERR_FEATURE_NOT_IMPLEMENTED}
 	    end;
 	_ ->
@@ -1404,6 +1408,7 @@ send_pending_node_form(Host, Owner, _Lang, Plugins) ->
     end,
     case lists:filter(Filter, Plugins) of
 	[] ->
+        ?DEBUG("1036 Filter=~p, Plugins=~p~n", [Filter, Plugins]),
 	    Err = extended_error(?ERR_FEATURE_NOT_IMPLEMENTED,
 				 unsupported, <<"get-pending">>),
 	    {error, Err};
@@ -1450,6 +1455,7 @@ send_pending_auth_events(Host, Node, Owner) ->
 			_ -> {error, ?ERRT_FORBIDDEN(?MYLANG, <<"You're not an owner">>)}
 		    end;
 		false ->
+            ?DEBUG("1037 plugin_features(Host, Type)=~p~n", [plugin_features(Host, Type)]),
 		    {error, extended_error(?ERR_FEATURE_NOT_IMPLEMENTED,
 					   unsupported, <<"get-pending">>)}
 	    end
@@ -1962,12 +1968,15 @@ subscribe_node(Host, Node, From, JID, Configuration) ->
 		    true
 	    end,
 	    if not SubscribeFeature ->
+            ?DEBUG("1037 SubscribeFeature=~p~n", [SubscribeFeature]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"subscribe">>)};
 		not SubscribeConfig ->
+            ?DEBUG("1038 SubscribeFeature=~p~n", [SubscribeFeature]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"subscribe">>)};
 		HasOptions andalso not OptionsFeature ->
+            ?DEBUG("1039 HasOptions=~p,OptionsFeature=~p~n", [HasOptions, OptionsFeature]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"subscription-options">>)};
 		SubOpts == invalid ->
@@ -2092,6 +2101,7 @@ publish_item(Host, ServerHost, Node, Publisher, ItemId, Payload, PubOpts, Access
 	    PayloadSize = byte_size(term_to_binary(Payload)) - 2,
 	    PayloadMaxSize = get_option(Options, max_payload_size),
 	    if not PublishFeature ->
+            ?DEBUG("1040 PublishFeature=~p~n", [PublishFeature]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"publish">>)};
 		PayloadSize > PayloadMaxSize ->
@@ -2218,9 +2228,11 @@ delete_item(Host, Node, Publisher, ItemId, ForceNotify) ->
 		%%        %% Request does not specify an item
 		%%        {error, extended_error(?ERR_BAD_REQUEST, "item-required")};
 		not PersistentFeature ->
+            ?DEBUG("1041 PersistentFeature=~p~n", [PersistentFeature]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"persistent-items">>)};
 		not DeleteFeature ->
+            ?DEBUG("1042 DeleteFeature=~p~n", [DeleteFeature]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"delete-items">>)};
 		true ->
@@ -2269,12 +2281,15 @@ purge_node(Host, Node, Owner) ->
 	    PersistentFeature = lists:member(<<"persistent-items">>, Features),
 	    PersistentConfig = get_option(Options, persist_items),
 	    if not PurgeFeature ->
+            ?DEBUG("1043 PurgeFeature=~p~n", [PurgeFeature]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"purge-nodes">>)};
 		not PersistentFeature ->
+            ?DEBUG("1045 PersistentFeature=~p~n", [PersistentFeature]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"persistent-items">>)};
 		not PersistentConfig ->
+            ?DEBUG("1046 PersistentConfig=~p~n", [PersistentConfig]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"persistent-items">>)};
 		true -> node_call(Host, Type, purge_node, [Nidx, Owner])
@@ -2336,9 +2351,11 @@ get_items(Host, Node, From, SubId, SMaxItems, ItemIds, RSM) ->
 		    AccessModel = get_option(Options, access_model),
 		    AllowedGroups = get_option(Options, roster_groups_allowed, []),
 		    if not RetreiveFeature ->
+                ?DEBUG("1047 RetreiveFeature=~p~n", [RetreiveFeature]),
 			    {error,
 				extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"retrieve-items">>)};
 			not PersistentFeature ->
+                ?DEBUG("1049 PersistentFeature=~p~n", [PersistentFeature]),
 			    {error,
 				extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"persistent-items">>)};
 			true ->
@@ -2482,6 +2499,7 @@ get_affiliations(Host, Node, JID, Plugins) when is_list(Plugins) ->
 		    Features = plugin_features(Host, Type),
 		    RetrieveFeature = lists:member(<<"retrieve-affiliations">>, Features),
 		    if not RetrieveFeature ->
+                ?DEBUG("1050 RetrieveFeature=~p, Features=~p~n", [RetrieveFeature, Features]),
 			    {{error,
 				    extended_error(?ERR_FEATURE_NOT_IMPLEMENTED,
 					unsupported, <<"retrieve-affiliations">>)},
@@ -2530,6 +2548,7 @@ get_affiliations(Host, Node, JID) ->
 	    RetrieveFeature = lists:member(<<"modify-affiliations">>, Features),
 	    {result, Affiliation} = node_call(Host, Type, get_affiliation, [Nidx, JID]),
 	    if not RetrieveFeature ->
+            ?DEBUG("1051 RetrieveFeature=~p~n", [RetrieveFeature]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"modify-affiliations">>)};
 		Affiliation /= owner ->
@@ -2635,6 +2654,7 @@ get_options(Host, Node, JID, SubId, Lang) ->
 		true ->
 		    get_options_helper(Host, JID, Lang, Node, Nidx, SubId, Type);
 		false ->
+            ?DEBUG("1052 plugin_features(Host, Type)=~p~n", [plugin_features(Host, Type)]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"subscription-options">>)}
 	    end
@@ -2692,6 +2712,7 @@ set_options(Host, Node, JID, SubId, Configuration) ->
 		true ->
 		    set_options_helper(Host, Configuration, JID, Nidx, SubId, Type);
 		false ->
+            ?DEBUG("1053 plugin_features(Host, Type)=~p~n", [plugin_features(Host, Type)]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"subscription-options">>)}
 	    end
@@ -2748,6 +2769,7 @@ get_subscriptions(Host, Node, JID, Plugins) when is_list(Plugins) ->
 		    Features = plugin_features(Host, Type),
 		    RetrieveFeature = lists:member(<<"retrieve-subscriptions">>, Features),
 		    if not RetrieveFeature ->
+                ?DEBUG("1055 RetrieveFeature=~p, Features=~p~n", [RetrieveFeature, Features]),
 			    {{error,
 				    extended_error(?ERR_FEATURE_NOT_IMPLEMENTED,
 					unsupported, <<"retrieve-subscriptions">>)},
@@ -2833,6 +2855,7 @@ get_subscriptions(Host, Node, JID) ->
 	    RetrieveFeature = lists:member(<<"manage-subscriptions">>, Features),
 	    {result, Affiliation} = node_call(Host, Type, get_affiliation, [Nidx, JID]),
 	    if not RetrieveFeature ->
+            ?DEBUG("1056 RetrieveFeature=~p, Features=~p~n", [RetrieveFeature, Features]),
 		    {error,
 			extended_error(?ERR_FEATURE_NOT_IMPLEMENTED, unsupported, <<"manage-subscriptions">>)};
 		Affiliation /= owner ->
@@ -4236,6 +4259,7 @@ purge_offline(LJID) ->
 		    Features = plugin_features(Host, Type),
 		    case lists:member(<<"retrieve-affiliations">>, plugin_features(Host, Type)) of
 			false ->
+                ?DEBUG("1057 plugin_features(Host, Type)=~p~n", [plugin_features(Host, Type)]),
 			    {{error, extended_error(?ERR_FEATURE_NOT_IMPLEMENTED,
 					unsupported, <<"retrieve-affiliations">>)},
 				Acc};
