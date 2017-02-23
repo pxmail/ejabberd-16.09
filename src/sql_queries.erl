@@ -39,7 +39,7 @@
 	 list_users/2, users_number/1, users_number/2,
 	 add_spool_sql/2, add_spool/2, get_and_del_spool_msg_t/2,
 	 del_spool_msg/2, get_roster/2, get_roster_jid_groups/2,
-	 get_roster_groups/3, del_user_roster_t/2,
+	 get_roster_groups/3, del_user_roster_t/2,del_user_roster/2
 	 get_roster_by_jid/3, get_rostergroup_by_jid/3,
 	 del_roster/3, del_roster_sql/2, update_roster/5,
 	 update_roster_sql/2, roster_subscribe/1, roster_subscribe/2,
@@ -364,6 +364,10 @@ del_user_roster_t(LServer, LUser) ->
       end).
 
 %%%%%%%%%%%%%%%%%%%%%%%ODBC modify start%%%%%%%%%%%%%%%%%%%%%%%
+del_user_roster(LServer, LUser, SJID) ->
+    ejabberd_sql:sql_query_t(
+      ?SQL("delete from ofroster where username=%(LUser)s and jid=%(SJID)s")),
+
 get_roster_by_jid_old(_LServer, LUser, SJID) ->
     ejabberd_sql:sql_query_t(
       ?SQL("select @(username)s, @(jid)s, @(nick)s, @(subscription)s,"
