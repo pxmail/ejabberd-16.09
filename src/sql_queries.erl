@@ -366,7 +366,7 @@ del_user_roster_t(LServer, LUser) ->
 %%%%%%%%%%%%%%%%%%%%%%%ODBC modify start%%%%%%%%%%%%%%%%%%%%%%%
 del_user_roster(LServer, LUser, SJID) ->
     ejabberd_sql:sql_query_t(
-      ?SQL("delete from ofroster where username=%(LUser)s and jid=%(SJID)s")),
+      ?SQL("delete from ofroster where username=%(LUser)s and jid=%(SJID)s")).
 
 get_roster_by_jid_old(_LServer, LUser, SJID) ->
     ejabberd_sql:sql_query_t(
