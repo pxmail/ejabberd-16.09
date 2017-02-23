@@ -322,6 +322,7 @@ set_roster(#roster{us = {LUser, LServer}, jid = LJID} = Item) ->
     transaction(
       LServer,
       fun() ->
+          ?DEBUG("1057 LUser=~p, LServer=~p~n", [LUser, LServer]),
 	      roster_subscribe_t(LUser, LServer, LJID, Item)
       end).
 
@@ -542,6 +543,7 @@ ask_to_pending(Ask) -> Ask.
 
 roster_subscribe_t(LUser, LServer, LJID, Item) ->
     Mod = gen_mod:db_mod(LServer, ?MODULE),
+    ?DEBUG("1058 Mod=~p, LServer=~p~n", [Mod, LServer]),
     Mod:roster_subscribe(LUser, LServer, LJID, Item).
 
 transaction(LServer, F) ->
@@ -597,6 +599,7 @@ process_subscription(Direction, User, Server, JID1,
 					    ask = Pending,
 					    askmessage =
 						iolist_to_binary(AskMessage)},
+              ?DEBUG("1056 Subscription=~p, Pending=~p, NewItem=~p~n", [Subscription, Pending, NewItem]),
 		      roster_subscribe_t(LUser, LServer, LJID, NewItem),
 		      case roster_version_on_db(LServer) of
 			true -> write_roster_version_t(LUser, LServer);
