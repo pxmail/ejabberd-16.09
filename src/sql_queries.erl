@@ -511,8 +511,8 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	LUser2 = "'" ++ util:to_list(LUser) ++ "'",
     SJID2 = "'" ++ util:to_list(SJID) ++ "'",
     Recv = -1,
-	Nick2 = if Nick == [] -> <<>>;%%"''"
-		   		true -> Nick
+	Nick2 = if Nick == [] -> "''";%%<<>>
+		   	   true -> Nick
 			end,
 	case ejabberd_sql:sql_query(LServer,
       		?SQL("select @(to_char(count(rosterid)))s from ofRoster"
