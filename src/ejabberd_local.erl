@@ -76,14 +76,17 @@ process_iq(From, To, Packet) ->
     case IQ of
       #iq{xmlns = XMLNS, lang = Lang} ->
 	  Host = To#jid.lserver,
+      ?DEBUG("1091 Host=~p,From=~p,To=~p~n", [Host, From, To]),
 	  case ets:lookup(?IQTABLE, {XMLNS, Host}) of
 	    [{_, Module, Function}] ->
+        ?DEBUG("1092 IQTABLE=~p, {XMLNS, Host}=~p,Module=~p, Function=~p, IQ=~p~n", [?IQTABLE, {XMLNS, Host}, Module, Function, IQ]),
 		ResIQ = Module:Function(From, To, IQ),
 		if ResIQ /= ignore ->
 		       ejabberd_router:route(To, From, jlib:iq_to_xml(ResIQ));
 		   true -> ok
 		end;
 	    [{_, Module, Function, Opts}] ->
+        ?DEBUG("1093 Module=~p, Function=~p, Opts=~p~n", [Module, Function, Opts]),
 		gen_iq_handler:handle(Host, Module, Function, Opts,
 				      From, To, IQ);
 	    [] ->
@@ -91,6 +94,7 @@ process_iq(From, To, Packet) ->
 		Err = jlib:make_error_reply(
 			Packet,
 			?ERRT_FEATURE_NOT_IMPLEMENTED(Lang, Txt)),
+        ?DEBUG("1095 Err=~p~n", [Err]),
 		ejabberd_router:route(To, From, Err)
 	  end;
       reply ->

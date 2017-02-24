@@ -64,6 +64,7 @@ process_local_iq(From, To,
       allow ->
 	  case Type of
 	    set ->
+        ?DEBUG("1096 Type=~p~n", [Type]),
 		Txt = <<"Value 'set' of 'type' attribute is not allowed">>,
 		IQ#iq{type = error,
 		      sub_el = [SubEl, ?ERRT_FEATURE_NOT_IMPLEMENTED(Lang, Txt)]};

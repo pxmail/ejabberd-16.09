@@ -122,6 +122,7 @@ get_local_stats(_Server, [<<"running nodes">>, ENode],
 		     Names)}
     end;
 get_local_stats(_Server, _, _, Lang) ->
+    ?DEBUG("1098 Lang=~p~n", [Lang]),
     Txt = <<"No statistics found for this item">>,
     {error, ?ERRT_FEATURE_NOT_IMPLEMENTED(Lang, Txt)}.
 
