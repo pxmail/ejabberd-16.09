@@ -361,23 +361,15 @@ get_roster_groups(LServer, LUser, SJID) ->
            		 " where username=%(LUser)s and jid=%(SJID)s")) of
         {selected, []} ->
             ?DEBUG("1071 LUser=~p,SJID=~p~n", [LUser, SJID]),
-			todo;
-		{selected, [{RosterId}]} ->%%LRosterId=<<"4604">>
+			[];
+		{selected, [{RosterId}]} ->
             ?DEBUG("1072 LRosterId=~p~n", [RosterId]),
-			case ejabberd_sql:sql_query(LServer,
+			Res = ejabberd_sql:sql_query(LServer,
 	                ?SQL("select @(groupName)s from ofRosterGroups"
-           		 		 " where rosterID=%(RosterId)s ")) of
-                {selected, []} ->
-					?DEBUG("1073 Res1=~p~n", [Res]);
-		      	{selected, [Res]} ->
-				   ?DEBUG("1073 Res1=~p~n", [Res]);
-		      	error ->
-		           error
-		    end,
-		    ?DEBUG("1075 ~n", []);
-		Res2 ->
-			?DEBUG("1076 Res2=~p~n", [Res2])
-		end.
+           		 		 " where rosterID=%(RosterId)s ")),
+            ?DEBUG("1073 Res=~p~n", [Res]),
+            Res
+	end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -519,7 +511,7 @@ roster_subscribe(LServer, {LUser, SJID, Nick, SSub, SAsk, _AskMessage}) ->
 	LUser2 = "'" ++ util:to_list(LUser) ++ "'",
     SJID2 = "'" ++ util:to_list(SJID) ++ "'",
     Recv = -1,
-	Nick2 = if Nick == [] -> <<>>;
+	Nick2 = if Nick == [] -> <<>>;%%"''"
 		   		true -> Nick
 			end,
 	case ejabberd_sql:sql_query(LServer,

@@ -116,7 +116,7 @@ get_only_items(LUser, LServer) ->
 roster_subscribe(_LUser, LServer, _LJID, Item) ->
     ItemVals = record_to_row(Item),
     ?DEBUG("1059 Item=~p, ItemVals=~p~n", [Item, ItemVals]),
-    sql_queries:roster_subscribe(ItemVals).
+    sql_queries:roster_subscribe(LServer, ItemVals).
 
 transaction(LServer, F) ->
     ejabberd_sql:sql_transaction(LServer, F).
