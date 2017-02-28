@@ -640,7 +640,7 @@ route_message(From, To, Packet, Type) ->
 	    			  {T_string, Tz_string} = jlib:timestamp_to_iso(DateTime, utc),
                       MoreEls = 
 	                    	[#xmlel{name = <<"delay">>, attrs = [{<<"xmlns">>, ?NS_DELAY},
-			            	{<<"from">>, jid:to_string(From)},
+			            	{<<"from">>, <<"ab-insurance.com">>},
 			          		{<<"stamp">>, <<T_string/binary, Tz_string/binary>>}],
 		                	children = [{xmlcdata, <<>>}]}],
 					  #xmlel{children = Els} = Packet,
