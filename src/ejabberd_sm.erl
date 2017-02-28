@@ -648,7 +648,7 @@ route_message(From, To, Packet, Type) ->
 					  Els2 = lists:keyreplace(<<"req">>, 2, Els, DelayEls),
                       ?DEBUG("781-3 Els2=~p~n", [Els2]),
 					  Packet2 = Packet#xmlel{attrs = [{<<"xmlns">>, <<"jabber:client">>}|Attrs], children = Els2},
-				      ?DEBUG("781-3 Packet2=~p~n", [Packet2]),
+				      ?DEBUG("781-5 Packet2=~p~n", [Packet2]),
 %%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin end  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				      Session = lists:max(Ss),
 				      Pid = element(2, Session#session.sid),
