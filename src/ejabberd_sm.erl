@@ -635,11 +635,12 @@ route_message(From, To, Packet, Type) ->
 				  Ss ->
 					  ?DEBUG("781 Ss=~p,From=~p,To=~p,Packet=~p~n", [Ss, From, To, Packet]),
 %%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin start %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                      FromLServer = From#jid.lserver,
 					  DateTime = calendar:now_to_datetime(now()),
 	    			  {T_string, Tz_string} = jlib:timestamp_to_iso(DateTime, utc),
                       MoreEls = 
 	                    	[#xmlel{name = <<"delay">>, attrs = [{<<"xmlns">>, ?NS_DELAY},
-			            	{<<"from">>, jid:to_string(ModifUSR)},
+			            	{<<"from">>, jid:to_string(FromLServer)},
 			          		{<<"stamp">>, <<T_string/binary, Tz_string/binary>>}],
 		                	children = [{xmlcdata, <<>>}]}],
 					  #xmlel{children = Els} = Packet,
