@@ -634,10 +634,26 @@ route_message(From, To, Packet, Type) ->
 				      ok; % Race condition
 				  Ss ->
 					  ?DEBUG("781 Ss=~p,From=~p,To=~p,Packet=~p~n", [Ss, From, To, Packet]),
+%%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin start %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+					  DateTime = calendar:now_to_datetime(now()),
+	    			  {T_string, Tz_string} = jlib:timestamp_to_iso(DateTime, utc),
+                      MoreEls = 
+	                    	[#xmlel{name = <<"delay">>, attrs = [{<<"xmlns">>, ?NS_DELAY},
+			            	{<<"from">>, jid:to_string(ModifUSR)},
+			          		{<<"stamp">>, <<T_string/binary, Tz_string/binary>>}],
+		                	children = [{xmlcdata, <<>>}]}],
+					  #xmlel{children = Els} = Packet,
+					  ?DEBUG("781-2 Els=~p~n", [Els]),
+					  Packet2 = Packet#xmlel{children = [Els|MoreEls]},
+				      ?DEBUG("781-3 Packet2=~p~n", [Packet2]),
+%%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin end  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				      Session = lists:max(Ss),
 				      Pid = element(2, Session#session.sid),
 				      ?DEBUG("sending to process ~p~n", [Pid]),
-				      Pid ! {route, From, To, Packet}
+%%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin start %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                      %%Pid ! {route, From, To, Packet}
+                      Pid ! {route, From, To, Packet2}
+%%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin end  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				end;
 			    %% Ignore other priority:
 			    ({_Prio, _Res}) -> ok
