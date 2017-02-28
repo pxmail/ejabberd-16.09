@@ -638,14 +638,16 @@ route_message(From, To, Packet, Type) ->
                       FromLServer = From#jid.lserver,
 					  DateTime = calendar:now_to_datetime(now()),
 	    			  {T_string, Tz_string} = jlib:timestamp_to_iso(DateTime, utc),
-                      MoreEls = 
-	                    	[#xmlel{name = <<"delay">>, attrs = [{<<"xmlns">>, ?NS_DELAY},
+                      DelayEls = 
+	                    	#xmlel{name = <<"delay">>, attrs = [{<<"xmlns">>, ?NS_DELAY},
 			            	{<<"from">>, <<"ab-insurance.com">>},
 			          		{<<"stamp">>, <<T_string/binary, Tz_string/binary>>}],
-		                	children = [{xmlcdata, <<>>}]}],
+		                	children = [{xmlcdata, <<>>}]},
 					  #xmlel{children = Els} = Packet,
 					  ?DEBUG("781-2 Els=~p~n", [Els]),
-					  Packet2 = Packet#xmlel{children = [Els|MoreEls]},
+					  Els2 = lists:keyreplace(<<"req">>, 2, Els, DelayEls),
+                      ?DEBUG("781-3 Els2=~p~n", [Els2]),
+					  Packet2 = Packet#xmlel{children = Els2},
 				      ?DEBUG("781-3 Packet2=~p~n", [Packet2]),
 %%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin end  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				      Session = lists:max(Ss),
