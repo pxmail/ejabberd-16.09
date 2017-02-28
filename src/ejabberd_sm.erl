@@ -644,10 +644,10 @@ route_message(From, To, Packet, Type) ->
 			          		{<<"stamp">>, <<T_string/binary, Tz_string/binary>>}],
 		                	children = [{xmlcdata, <<>>}]},
 					  #xmlel{attrs = Attrs, children = Els} = Packet,
-					  ?DEBUG("781-2 Attrs=~p, Els=~p~n", [Els, Attrs]),
+					  ?DEBUG("781-2 Attrs=~p, Els=~p~n", [Attrs, Els]),
 					  Els2 = lists:keyreplace(<<"req">>, 2, Els, DelayEls),
                       ?DEBUG("781-3 Els2=~p~n", [Els2]),
-					  Packet2 = Packet#xmlel{children = Els2},
+					  Packet2 = Packet#xmlel{attrs = [{<<"xmlns">>, <<"jabber:client">>}|Attrs], children = Els2},
 				      ?DEBUG("781-3 Packet2=~p~n", [Packet2]),
 %%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin end  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				      Session = lists:max(Ss),
