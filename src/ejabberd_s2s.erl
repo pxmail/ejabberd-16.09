@@ -314,6 +314,7 @@ do_route(From, To, Packet) ->
 	    _ ->
 		Lang = fxml:get_tag_attr_s(<<"xml:lang">>, Packet),
 		Txt = <<"No s2s connection found">>,
+		?DEBUG("1051 Packet=~p~n", [Packet]),
 		Err = jlib:make_error_reply(
 			Packet, ?ERRT_SERVICE_UNAVAILABLE(Lang, Txt)),
 		ejabberd_router:route(To, From, Err)
