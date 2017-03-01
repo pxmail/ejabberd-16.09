@@ -259,11 +259,11 @@ raw_to_record_old(LServer,
 
 %% username)s, @(jid)s, @(sub)s, @(ask)s, @(recv)s, @(nick)s
 raw_to_record(LServer,
-	      [User, SJID, SSub, SAsk, SRecv, Nick]) ->
+	      [_RosterId, User, SJID, SSub, SAsk, SRecv, Nick]) ->
     raw_to_record(LServer,
                   {User, SJID, SSub, SAsk, SRecv, Nick});
 raw_to_record(LServer,
-	      {User, SJID, SSub, SAsk, _SRecv, Nick}) ->
+	      {_RosterId, User, SJID, SSub, SAsk, _SRecv, Nick}) ->
     case jid:from_string(SJID) of
       error -> error;
       JID ->
