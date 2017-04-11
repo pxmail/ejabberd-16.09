@@ -28,7 +28,7 @@
 -author('alexey@process-one.net').
 
 -export([start/1, stop/0, mech_new/4, mech_step/2, parse/1]).
-
+-include("logger.hrl").
 -behaviour(cyrsasl).
 
 -record(state, {check_password}).
@@ -45,6 +45,7 @@ mech_new(_Host, _GetPassword, CheckPassword, _CheckPasswordDigest) ->
 mech_step(State, ClientIn) ->
     case prepare(ClientIn) of
       [AuthzId, User, Password] ->
+      ?DEBUG("1302 State#state.check_password=~p,AuthzId=~p, User=~p, Password=~p~n", [State#state.check_password, AuthzId, User, Password]),
 	  case (State#state.check_password)(User, AuthzId, Password) of
 	    {true, AuthModule} ->
 		{ok,
