@@ -635,27 +635,27 @@ route_message(From, To, Packet, Type) ->
 				  Ss ->
 					  ?DEBUG("781 Ss=~p,From=~p,To=~p,Packet=~p~n", [Ss, From, To, Packet]),
 %%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin start %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                      FromLServer = From#jid.lserver,
-					  DateTime = calendar:now_to_datetime(now()),
-	    			  {T_string, Tz_string} = jlib:timestamp_to_iso(DateTime, utc),
-                      DelayEls = 
-	                    	#xmlel{name = <<"delay">>, attrs = [{<<"xmlns">>, ?NS_DELAY},
-			            	{<<"from">>, <<"ab-insurance.com">>},
-			          		{<<"stamp">>, <<T_string/binary, Tz_string/binary>>}],
-		                	children = [{xmlcdata, <<>>}]},
-					  #xmlel{attrs = Attrs, children = Els} = Packet,
-					  ?DEBUG("781-2 Attrs=~p, Els=~p~n", [Attrs, Els]),
-					  Els2 = lists:keyreplace(<<"req">>, 2, Els, DelayEls),
-                      ?DEBUG("781-3 Els2=~p~n", [Els2]),
-					  Packet2 = Packet#xmlel{attrs = [{<<"xmlns">>, <<"jabber:client">>},{<<"messageId">>, <<"df3fed9f-7360-41e2-b987-063966c61c6c">>}|Attrs], children = Els2},
-				      ?DEBUG("781-6 Packet2=~p~n", [Packet2]),
+%%                    FromLServer = From#jid.lserver,
+%% 					  DateTime = calendar:now_to_datetime(now()),
+%% 	    			  {T_string, Tz_string} = jlib:timestamp_to_iso(DateTime, utc),
+%%                       DelayEls = 
+%% 	                    	#xmlel{name = <<"delay">>, attrs = [{<<"xmlns">>, ?NS_DELAY},
+%% 			            	{<<"from">>, <<"ab-insurance.com">>},
+%% 			          		{<<"stamp">>, <<T_string/binary, Tz_string/binary>>}],
+%% 		                	children = [{xmlcdata, <<>>}]},
+%% 					  #xmlel{attrs = Attrs, children = Els} = Packet,
+%% 					  ?DEBUG("781-2 Attrs=~p, Els=~p~n", [Attrs, Els]),
+%% 					  Els2 = lists:keyreplace(<<"req">>, 2, Els, DelayEls),
+%%                       ?DEBUG("781-3 Els2=~p~n", [Els2]),
+%% 					  Packet2 = Packet#xmlel{attrs = [{<<"xmlns">>, <<"jabber:client">>},{<<"messageId">>, <<"df3fed9f-7360-41e2-b987-063966c61c6c">>}|Attrs], children = Els2},
+%% 				      ?DEBUG("781-6 Packet2=~p~n", [Packet2]),
 %%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin end  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				      Session = lists:max(Ss),
 				      Pid = element(2, Session#session.sid),
 				      ?DEBUG("sending to process ~p~n", [Pid]),
 %%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin start %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                      %%Pid ! {route, From, To, Packet}
-                      Pid ! {route, From, To, Packet2}
+                      Pid ! {route, From, To, Packet}
+                      %%Pid ! {route, From, To, Packet2}
 %%%%%%%%%%%%%%%%%%%%%%%%%%modify by pangxin end  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				end;
 			    %% Ignore other priority:

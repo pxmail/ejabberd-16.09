@@ -183,14 +183,7 @@ parse4([], Key, Val, Ts) ->
 is_digesturi_valid(DigestURICase, JabberDomain,
 		   JabberFQDN) ->
     DigestURI = stringprep:tolower(DigestURICase),
-%%%%%%%%%%%%%%%%pangxin modify start %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    DigestURI2 =
-		if DigestURI == <<"xmpp/ab-insurance.com/apk_1.5.0">> -> <<"xmpp/ab-insurance.com">>;
-		   true -> DigestURI end,
-    ?DEBUG("602 DigestURI=~p,DigestURI2=~p~n", [DigestURI,DigestURI2]),
-    %%case catch str:tokens(DigestURI, <<"/">>) of
-    case catch str:tokens(DigestURI2, <<"/">>) of
-%%%%%%%%%%%%%%%%pangxin modify end %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	case catch str:tokens(DigestURI, <<"/">>) of
 	[<<"xmpp">>, Host] ->
 	    IsHostFqdn = is_host_fqdn(Host, JabberFQDN),
 	    (Host == JabberDomain) or IsHostFqdn;

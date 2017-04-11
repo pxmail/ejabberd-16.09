@@ -5187,9 +5187,9 @@ tab_count_user(JID) ->
     US = {LUser, LServer},
     ?DEBUG("1201 JID=~p, US=~p~n", [JID, US]),
 %%%%%%%%%%%%%%%%%%%% modify by pangxin start %%%%%%%%%%%%%%%%%%%%%
-%%    case catch ets:select(muc_online_users,
-%%			  [{#muc_online_users{us = US, _ = '_'}, [], [[]]}])
-	case catch ets:lookup(muc_online_users, US)
+    case catch ets:select(muc_online_users,
+			  [{#muc_online_users{us = US, _ = '_'}, [], [[]]}])
+%% 	case catch ets:lookup(muc_online_users, US)
 	of
       Res when is_list(Res) -> length(Res);
       _ -> 0
