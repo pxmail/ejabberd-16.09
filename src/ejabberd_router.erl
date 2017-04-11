@@ -57,7 +57,8 @@
 
 -type local_hint() :: undefined | integer() | {apply, atom(), atom()}.
 
--record(route, {domain, server_host, pid, local_hint}).
+%%-record(route, {domain, server_host, pid, local_hint}).
+-record(route, {domain, server_host, pid, local_hint， extra}).
 
 -record(state, {}).
 
@@ -369,69 +370,75 @@ do_route(OrigFrom, OrigTo, OrigPacket) ->
 %%			_ -> OrigPacket0
 %%		end,
 %%%%%%%%%%%%%%%%%modify by pangxin end %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    case ejabberd_hooks:run_fold(filter_packet,
-				 {OrigFrom, OrigTo, OrigPacket}, [])
-	of
-      {From, To, Packet} ->
-	  ?DEBUG("773 From=~p, To=~p, Packet=~p~n", [From, To, Packet]),
-	  LDstDomain = To#jid.lserver,
-	  case mnesia:dirty_read(route, LDstDomain) of
-	    [] -> ejabberd_s2s:route(From, To, Packet);
-	    [R] ->
-        ?DEBUG("775 R=~p~n", [R]),
-		Pid = R#route.pid,
-		if node(Pid) == node() ->
-		       case R#route.local_hint of
-			 {apply, Module, Function} ->
-			     Module:Function(From, To, Packet);
-			 _ -> Pid ! {route, From, To, Packet}
-		       end;
-		   is_pid(Pid) -> Pid ! {route, From, To, Packet};
-		   true -> drop
-		end;
-	    Rs ->
-		Value = case
-			  ejabberd_config:get_option({domain_balancing,
-						      LDstDomain}, fun(D) when is_atom(D) -> D end)
-			    of
-			  undefined -> p1_time_compat:monotonic_time();
-			  random -> p1_time_compat:monotonic_time();
-			  source -> jid:tolower(From);
-			  destination -> jid:tolower(To);
-			  bare_source ->
-			      jid:remove_resource(jid:tolower(From));
-			  bare_destination ->
-			      jid:remove_resource(jid:tolower(To))
-			end,
-		case get_component_number(LDstDomain) of
-		  undefined ->
-		      case [R || R <- Rs, node(R#route.pid) == node()] of
-			[] ->
-			    R = lists:nth(erlang:phash(Value, length(Rs)), Rs),
+    case ejabberd_hooks:run_fold(filter_packet, {OrigFrom, OrigTo, OrigPacket}, []) of
+       {From, To, Packet} ->
+	  	  ?DEBUG("773 From=~p, To=~p, Packet=~p~n", [From, To, Packet]),
+	  	  LDstDomain = To#jid.lserver,
+	      case mnesia:dirty_read(route, LDstDomain) of
+	      	 [] -> ejabberd_s2s:route(From, To, Packet);
+	    	 [R] ->
+        	    ?DEBUG("775 R=~p~n", [R]),
 			    Pid = R#route.pid,
-			    if is_pid(Pid) -> Pid ! {route, From, To, Packet};
-			       true -> drop
+			    if node(Pid) == node() ->
+		       	     case R#route.local_hint of
+			 	        {apply, Module, Function} ->
+			     		    Module:Function(From, To, Packet);
+			 		    _ ->
+                            ?DEBUG("775-2 ~n", []),
+						    Pid ! {route, From, To, Packet}
+		       	     end;
+			       is_pid(Pid) ->
+   							?DEBUG("775-3 ~n", []),
+							Pid ! {route, From, To, Packet};
+		   	       true ->  drop
 			    end;
-			LRs ->
-			    R = lists:nth(erlang:phash(Value, length(LRs)),
-					  LRs),
-			    Pid = R#route.pid,
-			    case R#route.local_hint of
-			      {apply, Module, Function} ->
-				  Module:Function(From, To, Packet);
-			      _ -> Pid ! {route, From, To, Packet}
-			    end
-		      end;
-		  _ ->
-		      SRs = lists:ukeysort(#route.local_hint, Rs),
-		      R = lists:nth(erlang:phash(Value, length(SRs)), SRs),
-		      Pid = R#route.pid,
-		      if is_pid(Pid) -> Pid ! {route, From, To, Packet};
-			 true -> drop
-		      end
-		end
-	  end;
-      drop -> ok
+	         Rs ->
+			    Value = 
+			    	case ejabberd_config:get_option({domain_balancing, LDstDomain}, 
+                                               fun(D) when is_atom(D) -> D end) of
+			  	   		undefined -> p1_time_compat:monotonic_time();
+			  	   		random -> p1_time_compat:monotonic_time();
+			  	   		source -> jid:tolower(From);
+			  	   		destination -> jid:tolower(To);
+			  	   		bare_source ->
+			      			jid:remove_resource(jid:tolower(From));
+			       		bare_destination ->
+			            	jid:remove_resource(jid:tolower(To))
+			    	end,
+				case get_component_number(LDstDomain) of
+		  			undefined ->
+		      			case [R || R <- Rs, node(R#route.pid) == node()] of
+							[] ->
+			    				R = lists:nth(erlang:phash(Value, length(Rs)), Rs),
+			    				Pid = R#route.pid,
+						    	if is_pid(Pid) -> 
+                                       ?ERROR_MSG("abc=================775-5 ~n", []),									
+                                       Pid ! {route, From, To, Packet};
+						       	   true -> drop
+						    	end;
+							LRs ->
+			    				R = lists:nth(erlang:phash(Value, length(LRs)), LRs),
+			    				Pid = R#route.pid,
+			    				case R#route.local_hint of
+			      					{apply, Module, Function} ->
+				  						Module:Function(From, To, Packet);
+			      					_ -> 
+                                        ?ERROR_MSG("abc=================775-6 ~n", []),		
+                                        Pid ! {route, From, To, Packet}
+			    				end
+		      			end;
+		  			_ ->
+		      			SRs = lists:ukeysort(#route.local_hint, Rs),
+		      			R = lists:nth(erlang:phash(Value, length(SRs)), SRs),
+		      			Pid = R#route.pid,
+		      			if is_pid(Pid) ->
+                               ?ERROR_MSG("abc=================775-7 ~n", []),
+                               Pid ! {route, From, To, Packet};
+			 		   		true -> drop
+		      			end
+				end
+	  	  end;
+       drop -> ok
     end.
 
 get_component_number(LDomain) ->
