@@ -58,7 +58,7 @@
 -type local_hint() :: undefined | integer() | {apply, atom(), atom()}.
 
 %%-record(route, {domain, server_host, pid, local_hint}).
--record(route, {domain, server_host, pid, local_hint， extra}).
+-record(route, {domain, server_host, pid, local_hint, extra}).
 
 -record(state, {}).
 
