@@ -432,9 +432,11 @@ auth_modules(Server) ->
     Default = ejabberd_config:default_db(LServer, ?MODULE),
     Methods = ejabberd_config:get_option(
                 {auth_method, LServer}, opt_type(auth_method), [Default]),
-    [jlib:binary_to_atom(<<"ejabberd_auth_",
+    A = [jlib:binary_to_atom(<<"ejabberd_auth_",
                            (jlib:atom_to_binary(M))/binary>>)
-     || M <- Methods].
+     || M <- Methods],
+    ?DEBUG("1303 A=~p~n", [A]),
+    A.
 
 export(Server) ->
     ejabberd_auth_mnesia:export(Server).
