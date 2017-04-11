@@ -140,12 +140,12 @@ del_last(LServer, LUser) ->
       ?SQL("delete from last where username=%(LUser)s")).
 
 %%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 start%%%%%%%%%%%%%%%%%%%%%%%
-get_password_old(LServer, LUser) ->
+get_password(LServer, LUser) ->
     ejabberd_sql:sql_query(
       LServer,
       ?SQL("select @(password)s from users where username=%(LUser)s")).
 
-get_password(LServer, LUser) ->
+get_password_new(LServer, LUser) ->
 	LServer2 = 
 	  if LServer == <<"ab-insurance.com/apk_1.5.0">> ->
 			 <<"ab-insurance.com">>;
