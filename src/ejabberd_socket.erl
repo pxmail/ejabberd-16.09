@@ -175,6 +175,7 @@ reset_stream(SocketData)
 -spec send(socket_state(), iodata()) -> ok.
 
 send(SocketData, Data) ->
+	?DEBUG("971 SocketData#socket_state.sockmod=~p~n",[SocketData#socket_state.sockmod]),
     case catch (SocketData#socket_state.sockmod):send(
 	     SocketData#socket_state.socket, Data) of
         ok -> ok;

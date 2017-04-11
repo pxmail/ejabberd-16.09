@@ -31,6 +31,7 @@ init(_Host, _Opts) ->
     ok.
 
 store_room(LServer, Host, Name, Opts) ->
+    ?DEBUG("1102 Opts=~p~n", [Opts]),
     SOpts = jlib:term_to_expr(Opts),
     F = fun () ->
 		?SQL_UPSERT_T(

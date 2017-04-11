@@ -600,6 +600,7 @@ wait_for_stream({xmlstreamstart, _Name, Attrs}, StateData) ->
 		    {stop, normal, StateData}
 	    end;
 	_ ->
+        ?DEBUG("701-2 StateData#state.server=~p~n", [StateData#state.server]),
 	    send_header(StateData, ?MYNAME, <<"">>, DefaultLang),
 	    send_element(StateData, ?INVALID_NS_ERR),
 	    {stop, normal, StateData}
@@ -1955,8 +1956,9 @@ send_text(StateData, Text) when StateData#state.mgmt_state == active ->
 	  ok
     end;
 send_text(StateData, Text) ->
-	?DEBUG("StateData = ~p", [StateData]),
-    ?DEBUG("Send XML on stream = ~p", [Text]),
+	?DEBUG("StateData = ~p~n", [StateData]),
+	?DEBUG("StateData#state.sockmod=~p~n", [StateData#state.sockmod]),
+    ?DEBUG("Send XML on stream = ~p~n", [Text]),
     (StateData#state.sockmod):send(StateData#state.socket, Text).
 
 send_element(StateData, El) when StateData#state.mgmt_state == pending ->

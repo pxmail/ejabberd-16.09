@@ -133,6 +133,7 @@ handle_call({starttls, TLSSocket}, _From, State) ->
                             sock_mod = fast_tls},
     case fast_tls:recv_data(TLSSocket, <<"">>) of
 	{ok, TLSData} ->
+        ?DEBUG("975-1 = ~n", []),
 	    {reply, ok,
 		process_data(TLSData, NewState), ?HIBERNATE_TIMEOUT};
 	{error, _Reason} ->
@@ -152,6 +153,7 @@ handle_call({compress, Data}, _From,
 			   sock_mod = ezlib},
     case ezlib:recv_data(ZlibSocket, <<"">>) of
       {ok, ZlibData} ->
+        ?DEBUG("975-2 = ~n", []),
 	    {reply, {ok, ZlibSocket},
 		process_data(ZlibData, NewState), ?HIBERNATE_TIMEOUT};
       {error, _Reason} ->
@@ -187,6 +189,7 @@ handle_info({Tag, _TCPSocket, Data},
       fast_tls ->
 	  case fast_tls:recv_data(Socket, Data) of
 	    {ok, TLSData} ->
+        ?DEBUG("975-3 = ~n", []),
 		{noreply, process_data(TLSData, State),
 		 ?HIBERNATE_TIMEOUT};
 	    {error, Reason} ->
@@ -200,11 +203,13 @@ handle_info({Tag, _TCPSocket, Data},
       ezlib ->
 	  case ezlib:recv_data(Socket, Data) of
 	    {ok, ZlibData} ->
+        ?DEBUG("975-5 = ~n", []),
 		{noreply, process_data(ZlibData, State),
 		 ?HIBERNATE_TIMEOUT};
 	    {error, _Reason} -> {stop, normal, State}
 	  end;
       _ ->
+      ?DEBUG("975-6 = ~n", []),
 	  {noreply, process_data(Data, State), ?HIBERNATE_TIMEOUT}
     end;
 handle_info({Tag, _TCPSocket}, State)
@@ -297,6 +302,7 @@ process_data(Data,
 	true ->
 	    activate_socket(State)
     end,
+	?DEBUG("975 = ~n", []),
     State#state{xml_stream_state = XMLStreamState1,
 		shaper_state = NewShaperState}.
 

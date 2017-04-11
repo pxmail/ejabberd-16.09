@@ -147,14 +147,19 @@ normal_state({route, From, <<"">>,
 	    <<"groupchat">> ->
 		Activity = get_user_activity(From, StateData),
 		Now = p1_time_compat:system_time(micro_seconds),
+        ?DEBUG("1151 Activity=~p, From=~p~n", [Activity, From]),
 		MinMessageInterval =
 		    trunc(gen_mod:get_module_opt(StateData#state.server_host,
 						 mod_muc, min_message_interval, fun(MMI) when is_number(MMI) -> MMI end, 0)
                           * 1000000),
+        ?DEBUG("1152 StateData#state.server_host=~p, MinMessageInterval=~p~n", [StateData#state.server_host, MinMessageInterval]),
 		Size = element_size(Packet),
+        ?DEBUG("1153 Size=~p~n", [Size]),
 		{MessageShaper, MessageShaperInterval} =
 		    shaper:update(Activity#activity.message_shaper, Size),
+        ?DEBUG("1155 MessageShaper=~p, MessageShaperInterval=~p, Activity#activity.message_shaper=~p, Size=~p~n", [MessageShaper, MessageShaperInterval, Activity#activity.message_shaper, Size]),
 		if Activity#activity.message /= undefined ->
+               ?DEBUG("1156 Activity#activity.message=~p~n", [Activity#activity.message]),
 		       ErrText = <<"Traffic rate limit is exceeded">>,
 		       Err = jlib:make_error_reply(Packet,
 						   ?ERRT_RESOURCE_CONSTRAINT(Lang,
@@ -164,11 +169,14 @@ normal_state({route, From, <<"">>,
 		   Now >=
 		     Activity#activity.message_time + MinMessageInterval,
 		   MessageShaperInterval == 0 ->
+               ?DEBUG("1157 Now=~p, Activity#activity.message_time=~p, MinMessageInterval=~p, MessageShaperInterval=~p~n", [Now, Activity#activity.message_time, MinMessageInterval, MessageShaperInterval]),
 		       {RoomShaper, RoomShaperInterval} =
 			   shaper:update(StateData#state.room_shaper, Size),
+               ?DEBUG("1158 RoomShaper=~p, RoomShaperInterval=~p,StateData#state.room_shaper=~p, Size=~p~n", [RoomShaper, RoomShaperInterval, StateData#state.room_shaper, Size]),
 		       RoomQueueEmpty =
 			   queue:is_empty(StateData#state.room_queue),
 		       if RoomShaperInterval == 0, RoomQueueEmpty ->
+				  ?DEBUG("1159 RoomShaperInterval=~p~n", [RoomShaperInterval]),
 			      NewActivity = Activity#activity{message_time =
 								  Now,
 							      message_shaper =
@@ -182,12 +190,15 @@ normal_state({route, From, <<"">>,
 							StateData2);
 			  true ->
 			      StateData1 = if RoomQueueEmpty ->
+                          ?DEBUG("1160 RoomShaperInterval=~p~n", [RoomShaperInterval]),
 						  erlang:send_after(RoomShaperInterval,
 								    self(),
 								    process_room_queue),
 						  StateData#state{room_shaper =
 								      RoomShaper};
-					      true -> StateData
+					      true -> 
+                             ?DEBUG("1161 StateData=~p~n", [StateData]),
+                             StateData
 					   end,
 			      NewActivity = Activity#activity{message_time =
 								  Now,
@@ -210,6 +221,7 @@ normal_state({route, From, <<"">>,
 					   div 1000,
 		       Interval = lists:max([MessageInterval,
 					     MessageShaperInterval]),
+               ?DEBUG("1162 Interval=~p,MessageInterval=~p,MessageShaperInterval=~p~n", [Interval,MessageInterval,MessageShaperInterval]),
 		       erlang:send_after(Interval, self(),
 					 {process_user_message, From}),
 		       NewActivity = Activity#activity{message = Packet,
@@ -994,10 +1006,12 @@ process_groupchat_message(From,
 			       NewPacket, Node, NewStateData1),
 			     NewStateData2 = case has_body_or_subject(NewPacket) of
 					       true ->
+                           ?DEBUG("1171 NewPacket=~p~n", [NewPacket]),
 						   add_message_to_history(FromNick, From,
 									  NewPacket,
 									  NewStateData1);
 					       false ->
+                           ?DEBUG("1172 ~n", []),
 						   NewStateData1
 					     end,
 			     {next_state, normal_state, NewStateData2}
@@ -1121,6 +1135,7 @@ process_presence(From, Nick,
 									    ErrorText));
 				<<"">> ->
 				    if not IsOnline ->
+                       ?DEBUG("1131 From=~p, Nick=~p, Packet=~p, StateData=~p~n", [From, Nick, Packet, StateData]),
 					   add_new_user(From, Nick, Packet, StateData);
 				       true ->
 					   case is_nick_change(From, Nick, StateData) of
@@ -1173,8 +1188,10 @@ process_presence(From, Nick,
 					     _NotNickChange ->
 						   Stanza = maybe_strip_status_from_presence(
 							      From, Packet, StateData),
+                           ?DEBUG("1137 From, Stanza, StateData=~p~n", [From, Stanza, StateData]),
 						   NewState = add_user_presence(From, Stanza,
 										StateData),
+                           ?DEBUG("1138 NewState=~p~n", [From, NewState]),
 						   send_new_presence(From, NewState, StateData),
 						   NewState
 					   end
@@ -1436,6 +1453,7 @@ set_affiliation(JID, Affiliation, StateData) ->
     set_affiliation(JID, Affiliation, StateData, <<"">>).
 
 set_affiliation(JID, Affiliation, StateData, Reason) ->
+    ?DEBUG("1101 JID=~p~n", [JID]),
     LJID = jid:remove_resource(jid:tolower(JID)),
     Affiliations = case Affiliation of
 		     none ->
@@ -1924,17 +1942,22 @@ nick_collision(User, Nick, StateData) ->
 add_new_user(From, Nick,
 	     #xmlel{name = Name, attrs = Attrs, children = Els} = Packet,
 	     StateData) ->
+    ?DEBUG("1132 From=~p, Nick=~p, Name=~p, Attrs=~p, Els=~p~n", [From, Nick, Name, Attrs, Els]),
     Lang = fxml:get_attr_s(<<"xml:lang">>, Attrs),
     UserRoomJID = jid:replace_resource(StateData#state.jid, Nick),
     MaxUsers = get_max_users(StateData),
+    ?DEBUG("1133 MaxUsers=~p, StateData=~p~n", [MaxUsers, StateData]),
     MaxAdminUsers = MaxUsers +
 		      get_max_users_admin_threshold(StateData),
+    ?DEBUG("1135 MaxAdminUsers=~p, MaxUsers=~p~n", [MaxAdminUsers, MaxUsers]),
     NUsers = dict:fold(fun (_, _, Acc) -> Acc + 1 end, 0,
 		       StateData#state.users),
+    ?DEBUG("1136 NUsers=~p~n", [NUsers]),
     Affiliation = get_affiliation(From, StateData),
     ServiceAffiliation = get_service_affiliation(From,
 						 StateData),
     NConferences = tab_count_user(From),
+    ?DEBUG("1203 NConferences=~p~n", [NConferences]),
     MaxConferences =
 	gen_mod:get_module_opt(StateData#state.server_host,
 			       mod_muc, max_user_conferences,
@@ -2448,8 +2471,10 @@ send_existing_presences(ToJID, StateData) ->
 
 send_existing_presences1(ToJID, StateData) ->
     LToJID = jid:tolower(ToJID),
+    ?DEBUG("1139 ToJID=~p, LToJID=~p~n", [ToJID, LToJID]),
     {ok, #user{jid = RealToJID, role = Role}} =
 	(?DICT):find(LToJID, StateData#state.users),
+    ?DEBUG("1140 RealToJID=~p, Role=~p, StateData#state.users=~p, state.nicks=~p~n", [RealToJID, Role, StateData#state.users, (?DICT):to_list(StateData#state.nicks)]),
     lists:foreach(
       fun({FromNick, _Users}) ->
 	      LJID = find_jid_by_nick(FromNick, StateData),
@@ -5127,6 +5152,7 @@ add_to_log(Type, Data, StateData)
 			   roomconfig_change, Data, StateData#state.jid,
 			   make_opts(StateData));
 add_to_log(Type, Data, StateData) ->
+    ?DEBUG("1192 (StateData#state.config)#config.logging =~p~n", [(StateData#state.config)#config.logging ]),
     case (StateData#state.config)#config.logging of
       true ->
 	  mod_muc_log:add_to_log(StateData#state.server_host,
@@ -5159,12 +5185,17 @@ tab_remove_online_user(JID, StateData) ->
 tab_count_user(JID) ->
     {LUser, LServer, _} = jid:tolower(JID),
     US = {LUser, LServer},
-    case catch ets:select(muc_online_users,
-			  [{#muc_online_users{us = US, _ = '_'}, [], [[]]}])
+    ?DEBUG("1201 JID=~p, US=~p~n", [JID, US]),
+%%%%%%%%%%%%%%%%%%%% modify by pangxin start %%%%%%%%%%%%%%%%%%%%%
+%%    case catch ets:select(muc_online_users,
+%%			  [{#muc_online_users{us = US, _ = '_'}, [], [[]]}])
+	case catch ets:lookup(muc_online_users, US)
 	of
       Res when is_list(Res) -> length(Res);
       _ -> 0
     end.
+%%%%%%%%%%%%%%%%%%%% modify by pangxin end %%%%%%%%%%%%%%%%%%%%%%%
+
 
 element_size(El) ->
     byte_size(fxml:element_to_binary(El)).

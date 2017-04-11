@@ -358,6 +358,7 @@ add_message_to_log(Nick1, Message, RoomJID, Opts,
 					   OutDir, Room#room.jid, DirType,
 					   DirName, FileFormat),
     {Date, Time} = TimeStamp,
+    ?DEBUG("1191 OutDir=~p~n", [OutDir]),
     case file:read_file_info(Fn) of
       {ok, _} -> {ok, F} = file:open(Fn, [append]);
       {error, enoent} ->

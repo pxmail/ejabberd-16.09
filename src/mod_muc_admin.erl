@@ -238,6 +238,7 @@ muc_unregister_nick(Nick) ->
 
 get_user_rooms(LUser, LServer) ->
     US = {LUser, LServer},
+    ?ERROR_MSG("1202 US=~p~n", [US]),
     case catch ets:select(muc_online_users,
                           [{#muc_online_users{us = US, room='$1', host='$2', _ = '_'}, [], [{{'$1', '$2'}}]}])
         of

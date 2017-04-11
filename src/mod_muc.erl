@@ -295,6 +295,7 @@ handle_info({route, From, To, Packet},
 		   access = Access, default_room_opts = DefRoomOpts,
 		   history_size = HistorySize,
 		   room_shaper = RoomShaper} = State) ->
+    ?DEBUG("977 Host=~p, ServerHost=~p, Access=~p, DefRoomOpts=~p, HistorySize=~p, RoomShaper=~p~n", [Host, ServerHost, Access, DefRoomOpts, HistorySize, RoomShaper]),
     case catch do_route(Host, ServerHost, Access, HistorySize, RoomShaper,
 			From, To, Packet, DefRoomOpts) of
 	{'EXIT', Reason} ->
