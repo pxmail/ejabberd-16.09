@@ -160,6 +160,7 @@ server_new(Service, ServerFQDN, UserRealm, _SecFlags,
 		check_password_digest = CheckPasswordDigest}.
 
 server_start(State, Mech, ClientIn) ->
+    ?DEBUG("1301 State=~p, Mech=~p, ClientIn=~p~n", [State, Mech, ClientIn]),
     case lists:member(Mech,
 		      listmech(State#sasl_state.myname))
 	of
