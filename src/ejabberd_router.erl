@@ -38,6 +38,7 @@
 	 register_route/2,
 	 register_route/3,
 	 register_routes/1,
+     register_route2/3,
 	 host_of_route/1,
 	 unregister_route/1,
 	 unregister_routes/1,
@@ -57,8 +58,8 @@
 
 -type local_hint() :: undefined | integer() | {apply, atom(), atom()}.
 
--record(route, {domain, server_host, pid, local_hint}).
-%%-record(route, {domain, server_host, pid, local_hint, extra}).
+%%-record(route, {domain, server_host, pid, local_hint}).
+-record(route, {domain, server_host, pid, local_hint, extra}).
 
 -record(state, {}).
 
@@ -120,7 +121,67 @@ register_route(Domain, ServerHost, LocalHint) ->
 		F = fun () ->
 			    mnesia:write(#route{domain = LDomain, pid = Pid,
 						server_host = LServerHost,
-						local_hint = LocalHint})
+						local_hint = LocalHint,
+                        })
+		    end,
+		mnesia:transaction(F);
+	    N ->
+		F = fun () ->
+			    case mnesia:wread({route, LDomain}) of
+			      [] ->
+				  mnesia:write(#route{domain = LDomain,
+						      server_host = LServerHost,
+						      pid = Pid,
+						      local_hint = 1}),
+				  lists:foreach(
+				    fun (I) ->
+					    mnesia:write(
+					      #route{domain = LDomain,
+						     pid = undefined,
+						     server_host = LServerHost,
+						     local_hint = I})
+				    end,
+				    lists:seq(2, N));
+			      Rs ->
+				  lists:any(
+				    fun (#route{pid = undefined,
+						local_hint = I} = R) ->
+					    mnesia:write(
+					      #route{domain = LDomain,
+						     pid = Pid,
+						     server_host = LServerHost,
+						     local_hint = I}),
+					    mnesia:delete_object(R),
+					    true;
+					(_) -> false
+				    end,
+				    Rs)
+			    end
+		    end,
+		mnesia:transaction(F)
+	  end
+    end.
+
+-spec register_route2(binary(), binary(), any()) -> term().
+
+register_route2(Domain, ServerHost, Extra) ->
+    register_route2(Domain, ServerHost, undefined, Extra).
+
+-spec register_route2(binary(), binary(), local_hint(), any()) -> term().
+
+register_route2(Domain, ServerHost, LocalHint, Extra) ->
+    case {jid:nameprep(Domain), jid:nameprep(ServerHost)} of
+      {error, _} -> erlang:error({invalid_domain, Domain});
+      {_, error} -> erlang:error({invalid_domain, ServerHost});
+      {LDomain, LServerHost} ->
+	  Pid = self(),
+	  case get_component_number(LDomain) of
+	    undefined ->
+		F = fun () ->
+			    mnesia:write(#route{domain = LDomain, pid = Pid,
+						server_host = LServerHost,
+						local_hint = LocalHint,
+                        })
 		    end,
 		mnesia:transaction(F);
 	    N ->
