@@ -50,7 +50,7 @@
 	 import/3,
 	 opts_to_binary/1,
 	 can_use_nick/4]).
-
+-export([route/4]).
 -export([init/1, handle_call/3, handle_cast/2,
 	 handle_info/2, terminate/2, code_change/3,
 	 mod_opt_type/1, depends/2]).
@@ -170,6 +170,19 @@ can_use_nick(ServerHost, Host, JID, Nick) ->
     LServer = jid:nameprep(ServerHost),
     Mod = gen_mod:db_mod(LServer, ?MODULE),
     Mod:can_use_nick(LServer, Host, JID, Nick).
+
+route(From, To, Packet, Extra) ->
+    #state{host = Host, server_host = ServerHost,
+		access = Access, default_room_opts = DefRoomOpts, 
+        history_size = HistorySize, room_shaper = RoomShaper} =  Extra,
+	?DEBUG("1325 Host=~p, ServerHost=~p, Access=~p, DefRoomOpts=~p, HistorySize=~p, RoomShaper=~p~n", [Host, ServerHost, Access, DefRoomOpts, HistorySize, RoomShaper]),
+    case catch do_route(Host, ServerHost, Access, HistorySize, RoomShaper,
+			From, To, Packet, DefRoomOpts) of
+	{'EXIT', Reason} ->
+	    ?ERROR_MSG("~p", [Reason]);
+	_ ->
+	    ok
+    end
 
 %%====================================================================
 %% gen_server callbacks

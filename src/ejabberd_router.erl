@@ -445,11 +445,13 @@ do_route(OrigFrom, OrigTo, OrigPacket) ->
 			     		    Module:Function(From, To, Packet);
 			 		    _ ->
                             ?DEBUG("775-2 ~n", []),
-						    Pid ! {route, From, To, Packet}
+						    %%Pid ! {route, From, To, Packet}
+                            mod_muc:route(From, To, Packet, R#route.extra)
 		       	     end;
 			       is_pid(Pid) ->
    							?DEBUG("775-3 ~n", []),
-							Pid ! {route, From, To, Packet};
+							%%Pid ! {route, From, To, Packet};
+                            mod_muc:route(From, To, Packet, R#route.extra);
 		   	       true ->  drop
 			    end;
 	         Rs ->
@@ -473,7 +475,8 @@ do_route(OrigFrom, OrigTo, OrigPacket) ->
 			    				Pid = R#route.pid,
 						    	if is_pid(Pid) -> 
                                        ?ERROR_MSG("abc=================775-5 ~n", []),									
-                                       Pid ! {route, From, To, Packet};
+                                       %%Pid ! {route, From, To, Packet};
+                                       mod_muc:route(From, To, Packet, R#route.extra);
 						       	   true -> drop
 						    	end;
 							LRs ->
@@ -484,7 +487,8 @@ do_route(OrigFrom, OrigTo, OrigPacket) ->
 				  						Module:Function(From, To, Packet);
 			      					_ -> 
                                         ?ERROR_MSG("abc=================775-6 ~n", []),		
-                                        Pid ! {route, From, To, Packet}
+                                        %%Pid ! {route, From, To, Packet}
+                                        mod_muc:route(From, To, Packet, R#route.extra)
 			    				end
 		      			end;
 		  			_ ->
@@ -493,7 +497,8 @@ do_route(OrigFrom, OrigTo, OrigPacket) ->
 		      			Pid = R#route.pid,
 		      			if is_pid(Pid) ->
                                ?ERROR_MSG("abc=================775-7 ~n", []),
-                               Pid ! {route, From, To, Packet};
+                               %%Pid ! {route, From, To, Packet};
+                               mod_muc:route(From, To, Packet, R#route.extra);
 			 		   		true -> drop
 		      			end
 				end
