@@ -121,8 +121,7 @@ register_route(Domain, ServerHost, LocalHint) ->
 		F = fun () ->
 			    mnesia:write(#route{domain = LDomain, pid = Pid,
 						server_host = LServerHost,
-						local_hint = LocalHint,
-                        })
+						local_hint = LocalHint})
 		    end,
 		mnesia:transaction(F);
 	    N ->
