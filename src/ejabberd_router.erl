@@ -179,8 +179,7 @@ register_route2(Domain, ServerHost, LocalHint, Extra) ->
 		F = fun () ->
 			    mnesia:write(#route{domain = LDomain, pid = Pid,
 						server_host = LServerHost,
-						local_hint = LocalHint,
-                        })
+						local_hint = LocalHint, extra= Extra})
 		    end,
 		mnesia:transaction(F);
 	    N ->
@@ -190,14 +189,14 @@ register_route2(Domain, ServerHost, LocalHint, Extra) ->
 				  mnesia:write(#route{domain = LDomain,
 						      server_host = LServerHost,
 						      pid = Pid,
-						      local_hint = 1}),
+						      local_hint = 1, extra= Extra}),
 				  lists:foreach(
 				    fun (I) ->
 					    mnesia:write(
 					      #route{domain = LDomain,
 						     pid = undefined,
 						     server_host = LServerHost,
-						     local_hint = I})
+						     local_hint = I, extra= Extra})
 				    end,
 				    lists:seq(2, N));
 			      Rs ->
@@ -208,7 +207,7 @@ register_route2(Domain, ServerHost, LocalHint, Extra) ->
 					      #route{domain = LDomain,
 						     pid = Pid,
 						     server_host = LServerHost,
-						     local_hint = I}),
+						     local_hint = I, extra= Extra}),
 					    mnesia:delete_object(R),
 					    true;
 					(_) -> false
