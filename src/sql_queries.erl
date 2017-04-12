@@ -323,14 +323,14 @@ del_spool_msg(LServer, LUser) ->
       ?SQL("delete from spool where username=%(LUser)s")).
 
 %%%%%%%%%%%%%%%%%%%%%%%ODBC 修改 start%%%%%%%%%%%%%%%%%%%%%%%
-get_roster_old(LServer, LUser) ->
+get_roster(LServer, LUser) ->
     ejabberd_sql:sql_query(
       LServer,
       ?SQL("select @(username)s, @(jid)s, @(nick)s, @(subscription)s, "
            "@(ask)s, @(askmessage)s, @(server)s, @(subscribe)s, "
            "@(type)s from rosterusers where username=%(LUser)s")).
 
-get_roster(LServer, LUser) ->
+get_roster_new(LServer, LUser) ->
     ejabberd_sql:sql_query(
       LServer,
       ?SQL("select @(rosterid)d, @(username)s, @(jid)s, @(sub)s, @(ask)s, @(recv)s, @(nick)s "
