@@ -258,8 +258,9 @@ init([]) ->
     mnesia:subscribe({table, route, simple}),
     lists:foreach(fun (Pid) -> erlang:monitor(process, Pid)
 		  end,
-		  mnesia:dirty_select(route,
-				      [{{route, '_', '$1', '_'}, [], ['$1']}])),
+		  %%mnesia:dirty_select(route,
+		  %%		      [{{route, '_', '$1', '_'}, [], ['$1']}])),
+          mnesia:dirty_select(route,[{{route, '_', '_', '$1', '_'}, [], ['$1']}])),
     {ok, #state{}}.
 
 %%--------------------------------------------------------------------
