@@ -182,7 +182,7 @@ route(From, To, Packet, Extra) ->
 	    ?ERROR_MSG("~p", [Reason]);
 	_ ->
 	    ok
-    end
+    end.
 
 %%====================================================================
 %% gen_server callbacks
