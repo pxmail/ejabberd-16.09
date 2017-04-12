@@ -162,12 +162,13 @@ check_in_subscription(Acc, User, Server, _JID, _Type, _Reason) ->
 -spec bounce_offline_message(jid(), jid(), xmlel()) -> stop.
 
 bounce_offline_message(From, To, Packet) ->
-    Lang = fxml:get_tag_attr_s(<<"xml:lang">>, Packet),
-    Txt = <<"User session not found">>,
-    Err = jlib:make_error_reply(
-	    Packet, ?ERRT_SERVICE_UNAVAILABLE(Lang, Txt)),
-    ejabberd_router:route(To, From, Err),
-    stop.
+%%     Lang = fxml:get_tag_attr_s(<<"xml:lang">>, Packet),
+%%     Txt = <<"User session not found">>,
+%%     Err = jlib:make_error_reply(
+%% 	    Packet, ?ERRT_SERVICE_UNAVAILABLE(Lang, Txt)),
+%%     ejabberd_router:route(To, From, Err),
+%%     stop.
+	none.
 
 -spec disconnect_removed_user(binary(), binary()) -> ok.
 
