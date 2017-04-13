@@ -392,6 +392,7 @@ db_mod(Host, Opts, Module) when is_list(Opts) ->
 -spec loaded_modules(binary()) -> [atom()].
 
 loaded_modules(Host) ->
+    ?ERROR_MSG("1181 Host=~p", [Host]),
     ets:select(ejabberd_modules,
 	       [{#ejabberd_module{_ = '_', module_host = {'$1', Host}},
 		 [], ['$1']}]).

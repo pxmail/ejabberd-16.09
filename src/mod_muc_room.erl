@@ -1942,7 +1942,7 @@ nick_collision(User, Nick, StateData) ->
 add_new_user(From, Nick,
 	     #xmlel{name = Name, attrs = Attrs, children = Els} = Packet,
 	     StateData) ->
-    ?ERROR_MSG("1132 From=~p, Nick=~p, Name=~p, Attrs=~p, Els=~p~n", [From, Nick, Name, Attrs, Els]),
+    ?DEBUG("1132 From=~p, Nick=~p, Name=~p, Attrs=~p, Els=~p~n", [From, Nick, Name, Attrs, Els]),
     Lang = fxml:get_attr_s(<<"xml:lang">>, Attrs),
     UserRoomJID = jid:replace_resource(StateData#state.jid, Nick),
     MaxUsers = get_max_users(StateData),
