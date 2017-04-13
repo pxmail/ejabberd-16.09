@@ -312,7 +312,9 @@ init([]) ->
     mnesia:create_table(route,
 			[{ram_copies, [node()]},
 			 {type, bag},
-			 {attributes, record_info(fields, route)}]),
+			 {attributes, record_info(fields, route)},
+             {storage_properties,[{ets,[{read_concurrency,true}]}]}
+            ]),
     mnesia:add_table_copy(route, node(), ram_copies),
     mnesia:subscribe({table, route, simple}),
     lists:foreach(fun (Pid) -> erlang:monitor(process, Pid)
