@@ -20,8 +20,10 @@
 -define(PRINT(Format, Args), io:format(Format, Args)).
 -compile([{parse_transform, lager_transform}]).
 
+%% -define(DEBUG(Format, Args),
+%% 	lager:debug(Format, Args)).
 -define(DEBUG(Format, Args),
-	lager:debug(Format, Args)).
+	none.
 
 -define(INFO_MSG(Format, Args),
 	lager:info(Format, Args)).
