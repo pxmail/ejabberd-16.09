@@ -22,8 +22,7 @@
 
 %% -define(DEBUG(Format, Args),
 %% 	lager:debug(Format, Args)).
--define(DEBUG(Format, Args),
-	none.
+-define(DEBUG(Format, Args), none).
 
 -define(INFO_MSG(Format, Args),
 	lager:info(Format, Args)).
