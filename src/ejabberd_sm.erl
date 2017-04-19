@@ -566,11 +566,12 @@ do_route(From, To, #xmlel{} = Packet) ->
 			<<"headline">> -> ok;
 			<<"error">> -> ok;
 			<<"groupchat">> ->
-			    ErrTxt = <<"User session not found222">>,
-			    Err = jlib:make_error_reply(
-				    Packet,
-				    ?ERRT_SERVICE_UNAVAILABLE(Lang, ErrTxt)),
-			    ejabberd_router:route(To, From, Err);
+%% 			    ErrTxt = <<"User session not found222">>,
+%% 			    Err = jlib:make_error_reply(
+%% 				    Packet,
+%% 				    ?ERRT_SERVICE_UNAVAILABLE(Lang, ErrTxt)),
+%% 			    ejabberd_router:route(To, From, Err);
+				none;
 			_ ->
 			    route_message(From, To, Packet, normal)
 		      end;
