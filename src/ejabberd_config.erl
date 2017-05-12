@@ -867,6 +867,7 @@ has_option(Opt) ->
 init_module_db_table(Modules) ->
     catch ets:new(module_db, [named_table, public, bag]),
     %% Dirty hack for mod_pubsub
+    ?DEBUG("111111 init_module_db_table", []),
     ets:insert(module_db, {mod_pubsub, mnesia}),
     ets:insert(module_db, {mod_pubsub, sql}),
     lists:foreach(

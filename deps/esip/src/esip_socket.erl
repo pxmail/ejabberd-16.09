@@ -94,7 +94,7 @@ connect(Addrs, Opts) when is_list(Opts) ->
         Err ->
             Err
     end.
-
+gen_tcp:send(_, _)
 send(#sip_socket{pid = Pid} = SIPSocket, Data) when node(Pid) /= node() ->
     Msg = {send, SIPSocket, Data},
     case erlang:send(Pid, Msg, [noconnect, nosuspend]) of
